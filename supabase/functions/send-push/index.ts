@@ -291,10 +291,14 @@ function isSendApnsRequest(value: unknown): value is SendApnsRequest {
   return true;
 }
 
+// Accepts the key as a real multi-line PEM or as the one-line form with
+// literal "\n" sequences that a .env file passes through untouched.
 function pemToPkcs8(pem: string): Uint8Array {
   const stripped = pem
     .replace(/-----BEGIN PRIVATE KEY-----/g, "")
     .replace(/-----END PRIVATE KEY-----/g, "")
+    .replace(/\\n/g, "")
+    .replace(/["']/g, "")
     .replace(/\s+/g, "");
   const binary = atob(stripped);
   const out = new Uint8Array(binary.length);
