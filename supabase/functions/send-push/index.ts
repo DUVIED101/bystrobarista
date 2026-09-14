@@ -334,10 +334,56 @@ function derToJose(der: Uint8Array): Uint8Array {
   return out;
 }
 
-async function signApnsJwt(): Promise<string> {
+// Apple rejects a provider that mints tokens more than once per ~20 minutes
+// (429 TooManyProviderTokenUpdates). The edge runtime recycles workers far
+// more often than that, so the token is shared through the database: every
+// worker reuses the stored one until it is JWT_TTL_SECONDS old.
+async function signApnsJwt(supabase: SupabaseClient): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   if (cachedJwt && cachedJwt.expiresAt > now) return cachedJwt.jwt;
 
+  const stored = await readStoredJwt(supabase);
+  if (stored && stored.expiresAt > now) {
+    cachedJwt = stored;
+    return stored.jwt;
+  }
+
+  const minted = await mintApnsJwt(now);
+  const shared = await storeJwt(supabase, minted);
+  cachedJwt = shared ?? { jwt: minted, expiresAt: now + JWT_TTL_SECONDS };
+  return cachedJwt.jwt;
+}
+
+type StoredJwtRow = { jwt: string; minted_at: string };
+
+function toCache(row: StoredJwtRow): JwtCache {
+  const mintedAt = Math.floor(new Date(row.minted_at).getTime() / 1000);
+  return { jwt: row.jwt, expiresAt: mintedAt + JWT_TTL_SECONDS };
+}
+
+async function readStoredJwt(supabase: SupabaseClient): Promise<JwtCache | null> {
+  const { data, error } = await supabase.rpc("apns_provider_jwt_get");
+  if (error) {
+    console.warn("apns jwt read failed", { err: error.message });
+    return null;
+  }
+  const row = (data as StoredJwtRow[] | null)?.[0];
+  return row ? toCache(row) : null;
+}
+
+// The database keeps the first token minted in a window and hands it back,
+// so concurrent workers converge on one token instead of racing Apple.
+async function storeJwt(supabase: SupabaseClient, jwt: string): Promise<JwtCache | null> {
+  const { data, error } = await supabase.rpc("apns_provider_jwt_put", { p_jwt: jwt });
+  if (error) {
+    console.warn("apns jwt store failed", { err: error.message });
+    return null;
+  }
+  const row = (data as StoredJwtRow[] | null)?.[0];
+  return row ? toCache(row) : null;
+}
+
+async function mintApnsJwt(now: number): Promise<string> {
   const header = { alg: "ES256", kid: APNS_KEY_ID, typ: "JWT" };
   const payload = { iss: APNS_TEAM_ID, iat: now };
   const encoder = new TextEncoder();
@@ -361,10 +407,7 @@ async function signApnsJwt(): Promise<string> {
     ),
   );
   const jose = derToJose(signatureRaw);
-  const jwt = `${signingInput}.${base64UrlEncode(jose)}`;
-
-  cachedJwt = { jwt, expiresAt: now + JWT_TTL_SECONDS };
-  return jwt;
+  return `${signingInput}.${base64UrlEncode(jose)}`;
 }
 
 function apnsHostFor(env: ApnsEnvironment): string {
@@ -589,7 +632,7 @@ async function handleRequest(req: Request): Promise<Response> {
     }
     let jwt: string;
     try {
-      jwt = await signApnsJwt();
+      jwt = await signApnsJwt(supabase);
     } catch (err) {
       console.error("jwt signing failed", { err: String(err) });
       return jsonResponse(500, { error: "jwt_signing_failed" });

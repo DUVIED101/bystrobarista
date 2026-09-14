@@ -146,7 +146,9 @@ Deno.serve(async (req: Request) => {
   console.error(`serving the request with ${servicePath}`)
 
   const memoryLimitMb = 150
-  const workerTimeoutMs = 1 * 60 * 1000
+  // Upstream default; a short lifetime recycled workers mid-request under a
+  // broadcast fan-out and each fresh worker re-minted the APNs token.
+  const workerTimeoutMs = 5 * 60 * 1000
   const noModuleCache = false
   // Using a common Import Map for all functions 
   // to use a scope 'deno.json' it must be dinamically resolved base on the 'service_name'
