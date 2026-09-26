@@ -40,6 +40,8 @@ type NotificationKind =
   | "employment_ended"
   | "job_start_reminder"
   | "report_resolved"
+  | "complaint_info_requested"
+  | "complaint_resolved"
   | "admin_dm"
   | "broadcast";
 
@@ -165,6 +167,8 @@ const KNOWN_KINDS: ReadonlySet<NotificationKind> = new Set<NotificationKind>([
   "employment_ended",
   "job_start_reminder",
   "report_resolved",
+  "complaint_info_requested",
+  "complaint_resolved",
   "admin_dm",
   "broadcast",
 ]);
