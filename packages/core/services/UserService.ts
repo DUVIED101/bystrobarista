@@ -138,4 +138,15 @@ export class UserService {
       throw error;
     }
   }
+
+  // Best-effort "last seen" ping for the admin panel; a failure must never
+  // surface to the user or block app launch.
+  static async touchLastSeen(): Promise<void> {
+    try {
+      const { error } = await supabase.rpc('touch_last_seen');
+      if (error) throw error;
+    } catch (error) {
+      console.warn('touchLastSeen failed:', error);
+    }
+  }
 }

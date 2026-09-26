@@ -2,6 +2,7 @@ import React from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { MobileTabBar } from "@/components/AppNav";
 import { ChatUnreadWatcher } from "@/components/ChatUnreadWatcher";
+import { LastSeenWatcher } from "@/components/LastSeenWatcher";
 import { NotificationFeedWatcher } from "@/components/NotificationFeedWatcher";
 import { NotificationToastHost } from "@/components/NotificationToastHost";
 import { PushSetup } from "@/components/PushSetup";
@@ -19,6 +20,7 @@ export default function AppLayout({
   return (
     <QueryProvider>
       <ChatUnreadWatcher />
+      <LastSeenWatcher />
       <NotificationFeedWatcher />
       <AppHeader />
       <main className="mx-auto max-w-5xl px-4 py-6 pb-20 md:pb-6">

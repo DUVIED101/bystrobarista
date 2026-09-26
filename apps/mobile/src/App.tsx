@@ -49,6 +49,7 @@ import { TutorialOverlay } from './components/tutorial/TutorialOverlay';
 import { WhatsNewSheet } from './components/whatsNew/WhatsNewSheet';
 import { useTutorialBootstrap } from './hooks/useTutorialBootstrap';
 import { useWhatsNewBootstrap } from './hooks/useWhatsNewBootstrap';
+import { useLastSeenHeartbeat } from './hooks/useLastSeenHeartbeat';
 import { JobOfferService } from '@bystrobarista/core/services/JobOfferService';
 import { pendingOfferActionsQueue } from '@bystrobarista/core/services/pendingOfferActionsQueue';
 import { useNotificationFeedStore } from './stores/notificationFeedStore';
@@ -150,6 +151,7 @@ function AppContent(): React.JSX.Element {
   useNotificationSetup({ onNotification: handlePushNotification });
   useTutorialBootstrap();
   useWhatsNewBootstrap();
+  useLastSeenHeartbeat();
   useEffect(() => {
     drainPendingOfferActions();
   }, []);
