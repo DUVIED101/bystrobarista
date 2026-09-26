@@ -5,7 +5,7 @@
 -- 1. Realtime publication: the dump may carry CREATE PUBLICATION, but the
 --    self-hosted init already created an empty supabase_realtime. Pin the set
 --    of tables the postgres_changes channels listen on (migrations 050,
---    054, 104, 135).
+--    054, 104, 136).
 ALTER PUBLICATION supabase_realtime SET TABLE
   public.messages,
   public.conversations,
