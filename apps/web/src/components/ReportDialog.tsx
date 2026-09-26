@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getPlatform } from "@bystrobarista/core/platform";
 import { ReportService } from "@bystrobarista/core/services/ReportService";
+import { reportSubmitErrorKey } from "@bystrobarista/core/utils/complaints";
 import type {
   ReportReasonCode,
   ReportTargetType,
@@ -50,8 +51,8 @@ export function ReportDialog({
       });
       getPlatform().alert.show(t("report.success"), "");
       onClose();
-    } catch {
-      getPlatform().alert.show(t("report.error"), "");
+    } catch (error) {
+      getPlatform().alert.show(t(reportSubmitErrorKey(error)), "");
       setSubmitting(false);
     }
   };
@@ -69,6 +70,9 @@ export function ReportDialog({
         </h2>
         <p className="mb-3 text-sm text-ink-secondary">
           {t("report.subtitle")}
+        </p>
+        <p className="mb-3 text-sm text-ink-secondary">
+          {t("report.targetSeesNotice")}
         </p>
         <p className="mb-3 rounded-input bg-bg-secondary px-3 py-2 text-xs text-ink-secondary">
           {t("report.attachmentsPrefix")}

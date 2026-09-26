@@ -105,8 +105,11 @@ function DisputeForm(): React.JSX.Element {
   return (
     <div className="mx-auto max-w-2xl pb-10">
       <h1 className="mb-2 text-2xl font-bold">{t("disputes.formTitle")}</h1>
-      <p className="mb-6 text-sm text-ink-secondary">
+      <p className="mb-2 text-sm text-ink-secondary">
         {t("disputes.formIntro")}
+      </p>
+      <p className="mb-6 text-sm text-ink-secondary">
+        {t("disputes.targetSeesNotice")}
       </p>
 
       <section className="mb-6">

@@ -29,6 +29,7 @@ import {
   mdiMessageTextOutline,
   mdiStarOutline,
   mdiTrashCanOutline,
+  mdiMessageQuestionOutline,
   mdiShieldCheckOutline,
   mdiShieldAccountOutline,
   mdiBullhornOutline,
@@ -109,6 +110,8 @@ const ICON_BY_KIND: Record<NotificationKind, string> = {
   employment_ended: mdiAccountOffOutline,
   job_start_reminder: mdiCalendarClock,
   report_resolved: mdiShieldCheckOutline,
+  complaint_info_requested: mdiMessageQuestionOutline,
+  complaint_resolved: mdiShieldCheckOutline,
   admin_dm: mdiShieldAccountOutline,
   broadcast: mdiBullhornOutline,
 };

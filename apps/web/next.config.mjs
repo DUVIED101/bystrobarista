@@ -32,6 +32,23 @@ const nextConfig = {
   // write into the .next directory a running dev server is serving from —
   // clobbering it mid-request bricks the dev server with MODULE_NOT_FOUND.
   distDir: process.env.BB_DIST_DIR || ".next",
+  // Old complaint pages (disputes list, abuse reports) merged into /complaints;
+  // links in old push notifications and bookmarks keep working.
+  async redirects() {
+    return [
+      { source: "/disputes", destination: "/complaints", permanent: true },
+      {
+        source: "/settings/reports",
+        destination: "/complaints?tab=mine",
+        permanent: true,
+      },
+      {
+        source: "/disputes/:id((?!new$)[^/]+)",
+        destination: "/complaints/dispute/:id",
+        permanent: true,
+      },
+    ];
+  },
   webpack: (config) => {
     for (const dep of SINGLETONS) {
       config.resolve.alias[dep] = path.resolve(__dirname, "node_modules", dep);

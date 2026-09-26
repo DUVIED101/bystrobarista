@@ -3,6 +3,7 @@ import type {
   NotificationData,
   NotificationKind,
 } from "@bystrobarista/core/types/notification";
+import { complaintRefFromNotification } from "@bystrobarista/core/utils/complaints";
 
 export type RoutableNotification = Pick<Notification, "kind"> & {
   data: Partial<NotificationData>;
@@ -71,9 +72,12 @@ export const notificationHref = (
       return `/shift-alerts?${params.toString()}`;
     }
     case "dispute_filed":
-      return data.disputeId ? `/disputes/${data.disputeId}` : "/disputes";
     case "report_resolved":
-      return "/settings/reports";
+    case "complaint_info_requested":
+    case "complaint_resolved": {
+      const ref = complaintRefFromNotification(data);
+      return ref ? `/complaints/${ref.kind}/${ref.id}` : "/complaints";
+    }
     case "admin_dm":
     case "broadcast":
       return "/notifications";

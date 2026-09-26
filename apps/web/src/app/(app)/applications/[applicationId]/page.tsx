@@ -348,7 +348,7 @@ export default function ApplicationDetailsPage(): React.JSX.Element {
           disputeQuery.isSuccess &&
           (disputeQuery.data ? (
             <Link
-              href={`/disputes/${disputeQuery.data.id}`}
+              href={`/complaints/dispute/${disputeQuery.data.id}`}
               className="rounded-card border border-line bg-bg-secondary px-4 py-3 text-center text-sm"
             >
               <span className="font-semibold">{t("disputes.filedLabel")}</span>

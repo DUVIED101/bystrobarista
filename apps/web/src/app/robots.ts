@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
         "/settings",
         "/notifications",
         "/disputes",
+        "/complaints",
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

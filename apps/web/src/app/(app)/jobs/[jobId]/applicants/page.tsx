@@ -716,7 +716,7 @@ export default function ApplicantsPage(): React.JSX.Element {
               {(app.status === "accepted" || app.status === "completed") &&
                 (dispute ? (
                   <Link
-                    href={`/disputes/${dispute.id}`}
+                    href={`/complaints/dispute/${dispute.id}`}
                     className="mt-3 block rounded-input bg-bg-secondary p-3 text-xs text-ink-secondary hover:text-ink"
                   >
                     {t("disputes.filedLabel")} ·{" "}

@@ -696,7 +696,7 @@ export default function ProfilePage(): React.JSX.Element {
                   <span aria-hidden="true">›</span>
                 </Link>
                 <Link
-                  href="/disputes"
+                  href="/complaints?tab=against"
                   className="flex items-center justify-between py-2.5 text-sm hover:text-primary"
                 >
                   <span>

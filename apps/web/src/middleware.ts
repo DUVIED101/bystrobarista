@@ -27,7 +27,7 @@ const PUBLIC_PATHS = [
 ];
 
 // Role scoping mirrors mobile's MainTabs split. Shared paths (/jobs,
-// /jobs/[id], /profile, /chats, /notifications, /settings, /disputes,
+// /jobs/[id], /profile, /chats, /notifications, /settings, /complaints,
 // /documents, /reviews) dispatch by accountType inside the page.
 const BARISTA_ONLY = ["/applications", "/offers", "/shifts", "/businesses"];
 const BUSINESS_ONLY = ["/dashboard", "/baristas", "/branches", "/shift-alerts"];
