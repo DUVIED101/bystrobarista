@@ -83,6 +83,8 @@ const ICON_BY_KIND: Record<NotificationKind, string> = {
   employment_ended: 'account-off-outline',
   job_start_reminder: 'calendar-clock',
   report_resolved: 'shield-check-outline',
+  complaint_info_requested: 'message-question-outline',
+  complaint_resolved: 'shield-check-outline',
   admin_dm: 'shield-account-outline',
   broadcast: 'bullhorn-outline',
 };

@@ -359,7 +359,12 @@ export const BusinessProfileScreen: React.FC<Props> = ({ navigation }) => {
           {reliability && (
             <TouchableOpacity
               style={styles.row}
-              onPress={() => navigation.navigate('Settings', { screen: 'MyDisputes' })}>
+              onPress={() =>
+                navigation.navigate('Settings', {
+                  screen: 'Complaints',
+                  params: { tab: 'against' },
+                })
+              }>
               <View style={styles.rowIcon}>
                 <MaterialCommunityIcons name="shield-check-outline" size={22} color={COLORS.text} />
               </View>

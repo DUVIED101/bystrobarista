@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { COLORS } from '@bystrobarista/core/config/constants';
 import { useTranslation } from 'react-i18next';
+import type { ComplaintRef } from '@bystrobarista/core/types';
 
 export type SettingsStackParamList = {
   SettingsHome: undefined;
@@ -17,9 +18,8 @@ export type SettingsStackParamList = {
   PersonalDataPolicy: undefined;
   DataConsent: undefined;
   Support: undefined;
-  MyDisputes: undefined;
-  MyReports: undefined;
-  DisputeDetails: { applicationId?: string; disputeId?: string };
+  Complaints: { tab?: 'mine' | 'against'; open?: ComplaintRef } | undefined;
+  ComplaintDetails: ComplaintRef;
   Diagnostic: undefined;
 };
 
@@ -93,17 +93,16 @@ export const SettingsStack: React.FC = () => {
         getComponent={() => require('../screens/settings/SupportScreen').SupportScreen}
       />
       <Stack.Screen
-        name="MyDisputes"
-        getComponent={() => require('../screens/shared/MyDisputesScreen').MyDisputesScreen}
+        name="Complaints"
+        getComponent={() => require('../screens/settings/ComplaintsScreen').ComplaintsScreen}
+        options={{ title: t('complaints.title') }}
       />
       <Stack.Screen
-        name="MyReports"
-        getComponent={() => require('../screens/settings/MyReportsScreen').MyReportsScreen}
-      />
-      <Stack.Screen
-        name="DisputeDetails"
-        getComponent={() => require('../screens/shared/DisputeDetailsScreen').DisputeDetailsScreen}
-        options={{ title: t('disputes.detailsTitle') }}
+        name="ComplaintDetails"
+        getComponent={() =>
+          require('../screens/settings/ComplaintDetailsScreen').ComplaintDetailsScreen
+        }
+        options={{ title: t('complaints.detailsTitle') }}
       />
       <Stack.Screen
         name="Diagnostic"

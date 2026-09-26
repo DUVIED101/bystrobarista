@@ -1057,7 +1057,12 @@ export const BaristaProfileScreen: React.FC<Props> = ({ navigation }) => {
 
                 <TouchableOpacity
                   style={styles.subsectionRow}
-                  onPress={() => navigation.navigate('Settings', { screen: 'MyDisputes' })}>
+                  onPress={() =>
+                    navigation.navigate('Settings', {
+                      screen: 'Complaints',
+                      params: { tab: 'against' },
+                    })
+                  }>
                   <View style={styles.historyRowLeft}>
                     <Text style={styles.historyRowTitle}>{t('reliability.sectionTitle')}</Text>
                     {reliability ? (

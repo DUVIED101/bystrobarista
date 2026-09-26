@@ -115,6 +115,7 @@ export const DisputeFormScreen: React.FC<Props> = ({ route, navigation }) => {
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>{t('disputes.formTitle')}</Text>
         <Text style={styles.intro}>{t('disputes.formIntro')}</Text>
+        <Text style={styles.intro}>{t('disputes.targetSeesNotice')}</Text>
 
         <Text style={styles.label}>{t('disputes.categoryLabel')}</Text>
         <View style={styles.chipRow}>

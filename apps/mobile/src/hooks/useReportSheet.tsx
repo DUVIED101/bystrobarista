@@ -13,9 +13,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '@bystrobarista/core/config/constants';
 import { ReportService } from '@bystrobarista/core/services/ReportService';
+import { reportSubmitErrorKey } from '@bystrobarista/core/utils/complaints';
 import { navigateTab } from '../navigation/navigationRef';
 import type { ReportReasonCode, ReportTargetType } from '@bystrobarista/core/types';
-import { showSuccessToast } from '../stores/errorToastStore';
+import { showErrorToast, showSuccessToast } from '../stores/errorToastStore';
 import { handleApiError } from '../utils/handleApiError';
 import { useAuthStore } from '@bystrobarista/core/stores/authStore';
 
@@ -71,7 +72,9 @@ const ReportSheet = memo<SheetProps>(({ target, onClose }) => {
       handleClose();
     } catch (error) {
       console.error('ReportSheet: submit failed', error);
-      await handleApiError(error);
+      const key = reportSubmitErrorKey(error);
+      if (key === 'report.error') await handleApiError(error);
+      else showErrorToast(t(key));
       setIsSubmitting(false);
     }
   }, [target, reason, details, t, handleClose]);
@@ -84,6 +87,7 @@ const ReportSheet = memo<SheetProps>(({ target, onClose }) => {
         <View style={styles.sheet}>
           <Text style={styles.title}>{t('report.title')}</Text>
           <Text style={styles.subtitle}>{t('report.subtitle')}</Text>
+          <Text style={styles.notice}>{t('report.targetSeesNotice')}</Text>
           <Text style={styles.notice}>
             {t('report.attachmentsPrefix')}
             <Text

@@ -1,6 +1,7 @@
 import { createNavigationContainerRef, CommonActions } from '@react-navigation/native';
 import { useAuthStore } from '@bystrobarista/core/stores/authStore';
 import type { PushNotificationPayload } from '@bystrobarista/core/types/notification';
+import { complaintRefFromNotification } from '@bystrobarista/core/utils/complaints';
 
 export const navigationRef = createNavigationContainerRef();
 
@@ -28,7 +29,6 @@ export const dispatchPayload = (payload: PushNotificationPayload): void => {
   const jobId = payload.data?.jobId;
   const offerId = payload.data?.offerId;
   const applicationId = payload.data?.applicationId;
-  const disputeId = payload.data?.disputeId;
   const jobTitle = payload.data?.jobTitle;
   const shiftStartIso = payload.data?.shiftStartIso;
 
@@ -131,24 +131,22 @@ export const dispatchPayload = (payload: PushNotificationPayload): void => {
     return;
   }
 
-  if (kind === 'report_resolved') {
-    navigateTab('Profile', { screen: 'Settings', params: { screen: 'MyReports' } });
+  if (
+    kind === 'report_resolved' ||
+    kind === 'complaint_info_requested' ||
+    kind === 'complaint_resolved' ||
+    kind === 'dispute_filed'
+  ) {
+    const open = payload.data ? complaintRefFromNotification(payload.data) : null;
+    navigateTab('Profile', {
+      screen: 'Settings',
+      params: { screen: 'Complaints', params: open ? { open } : undefined },
+    });
     return;
   }
 
   if (kind === 'admin_dm' || kind === 'broadcast') {
     navigateTab('Profile', { screen: 'NotificationFeed' });
-    return;
-  }
-
-  if (kind === 'dispute_filed') {
-    if (disputeId) {
-      navigateTab('Profile', { screen: 'DisputeDetails', params: { disputeId } });
-    } else if (applicationId) {
-      navigateTab('Profile', { screen: 'DisputeDetails', params: { applicationId } });
-    } else {
-      navigateTab('Profile');
-    }
     return;
   }
 

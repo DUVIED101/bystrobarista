@@ -183,14 +183,8 @@ export const SettingsScreen: React.FC = () => {
         <Text style={styles.sectionHeader}>{t('settings.sections.activity').toUpperCase()}</Text>
         <View style={styles.card}>
           <SettingsRow
-            label={t('settings.items.myDisputes')}
-            onPress={() => navigation.navigate('MyDisputes')}
-            showChevron
-          />
-          <View style={styles.separator} />
-          <SettingsRow
-            label={t('settings.items.myReports')}
-            onPress={() => navigation.navigate('MyReports')}
+            label={t('settings.items.complaints')}
+            onPress={() => navigation.navigate('Complaints')}
             showChevron
           />
         </View>
