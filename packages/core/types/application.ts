@@ -1,3 +1,4 @@
+import type { DisputeId } from './ids';
 import type { Employment } from './employment';
 import type { Job } from './job';
 
@@ -60,26 +61,13 @@ export interface ApplicationFilters {
 export type DisputeStatus = 'submitted' | 'under_review' | 'resolved' | 'dismissed';
 
 export type DisputeSummary = {
-  id: string;
+  id: DisputeId;
   applicationId: string;
   categories: string[];
   severity: string;
   status: DisputeStatus;
-  resolutionNote?: string;
-  description?: string;
-  createdAt: string;
-  myRole: 'reporter' | 'reportee';
-};
-
-export type MyDisputeItem = {
-  id: string;
-  applicationId: string;
-  categories: string[];
-  severity: string;
-  status: DisputeStatus;
+  /** Moderator note meant for the viewer: the reply for the reporter, the note for the reportee. */
   resolutionNote?: string;
   createdAt: string;
-  jobTitle?: string;
-  businessName?: string;
   myRole: 'reporter' | 'reportee';
 };

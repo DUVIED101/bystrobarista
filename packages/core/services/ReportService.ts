@@ -19,23 +19,6 @@ export class ReportService {
   }
 
   /**
-   * The caller's own reports, newest first. RLS also lets admins read every
-   * report, so the reporter filter is explicit — an admin using the app must
-   * see only what they filed themselves.
-   */
-  static async listMyReports(): Promise<UserReport[]> {
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    if (!userId) return [];
-    const { data, error } = await supabase
-      .from('user_reports')
-      .select('*')
-      .eq('reporter_id', userId)
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return (data ?? []).map(row => this.mapDatabaseReport(row));
-  }
-
-  /**
    * Submit an abuse report. RLS enforces `reporter_id = auth.uid()`, so the
    * caller must be signed in. Throws on any service-layer failure.
    */
@@ -58,7 +41,9 @@ export class ReportService {
     const { data, error } = await supabase
       .from('user_reports')
       .insert(payload)
-      .select('*')
+      .select(
+        'id, reporter_id, target_type, target_id, reason_code, details, status, outcome, resolution_note, resolved_at, created_at'
+      )
       .single();
 
     if (error) {

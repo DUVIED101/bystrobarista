@@ -1496,8 +1496,7 @@
       "notifications": "Notifications",
       "visibility": "Profile Visibility",
       "blockedUsers": "Blocked Users",
-      "myDisputes": "My Complaints",
-      "myReports": "Abuse reports",
+      "complaints": "Complaints",
       "documents": "Documents",
       "terms": "Terms of Service",
       "privacyPolicy": "Privacy Policy",
@@ -1628,8 +1627,6 @@
       "critical": "Critical"
     },
     "descriptionLabel": "Describe the situation (min 30 characters)",
-    "descriptionLabelOwn": "Your description",
-    "descriptionLabelAgainst": "Description of the situation",
     "descriptionPlaceholder": "Describe what happened in detail",
     "evidenceLabel": "Evidence (photos, optional)",
     "submit": "Submit complaint",
@@ -1649,13 +1646,9 @@
       "notEligible": "Complaints can only be filed for active or completed shifts"
     },
     "detailsTitle": "Complaint",
-    "myDisputesTitle": "My Complaints",
-    "myDisputesEmpty": "You haven't filed any complaints yet",
-    "unknownJob": "Job",
     "notFound": "Complaint not found",
     "pendingNote": "Your complaint has been passed to moderators and will be reviewed shortly.",
-    "sectionFiledByMe": "Filed by me",
-    "sectionAgainstMe": "Filed against me"
+    "targetSeesNotice": "The other side will see the complaint and its reason, but not your description."
   },
   "reliability": {
     "sectionTitle": "Reliability",
@@ -1684,25 +1677,89 @@
     },
     "unknown": "Something went wrong. Please try again"
   },
-  "myReports": {
-    "title": "Abuse reports",
-    "empty": "You have not filed any abuse reports yet",
-    "pending": "Under moderator review",
-    "reply": "Moderator reply",
-    "target": {
-      "user": "about a user",
-      "business": "about a business",
-      "branch": "about a branch",
-      "job": "about a job",
-      "message": "about a message",
-      "review": "about a review"
+  "complaints": {
+    "title": "Complaints",
+    "detailsTitle": "Complaint",
+    "tabs": {
+      "mine": "My complaints",
+      "against": "About me"
+    },
+    "type": {
+      "report": "Violation",
+      "dispute": "Shift"
+    },
+    "empty": {
+      "mine": "You haven't filed any complaints yet",
+      "against": "There are no complaints about you"
+    },
+    "emptyHint": {
+      "mine": "You can report from a profile, a job, a chat or a shift card.",
+      "against": "If someone complains about you, it will appear here — without the author's name."
+    },
+    "anonymous": "We don't reveal who filed the complaint.",
+    "needsReply": "Your reply is needed",
+    "filedOn": "Filed {{date}}",
+    "status": {
+      "open": "Pending review",
+      "in_review": "Under review",
+      "resolved": "Resolved",
+      "dismissed": "Dismissed"
+    },
+    "about": {
+      "user": "About a user",
+      "business": "About a business",
+      "branch": "About a branch",
+      "job": "About a job",
+      "message": "About a message",
+      "review": "About a review",
+      "shift": "About a shift"
+    },
+    "aboutMe": {
+      "user": "About your profile",
+      "business": "About your business",
+      "branch": "About your branch",
+      "job": "About your job",
+      "message": "About your message",
+      "review": "About your review",
+      "shift": "About your shift"
     },
     "outcome": {
       "no_violation": "No violation found",
-      "warning": "Warning issued",
-      "suspension": "Account suspended",
-      "ban": "Account banned"
-    }
+      "warning": "A warning was issued",
+      "suspension": "The account was suspended",
+      "ban": "The account was banned"
+    },
+    "outcomeForTarget": {
+      "no_violation": "No violation found",
+      "warning": "You received a warning",
+      "suspension": "Your account was suspended",
+      "ban": "Your account is banned"
+    },
+    "section": {
+      "reason": "Reason",
+      "severity": "Severity",
+      "ownText": "What you wrote",
+      "decision": "Decision",
+      "moderatorReply": "Moderator reply",
+      "moderatorNote": "Moderator comment"
+    },
+    "thread": {
+      "title": "Conversation with the moderator",
+      "moderator": "Moderator",
+      "you": "You",
+      "placeholder": "Your reply",
+      "send": "Send",
+      "closed": "The complaint is closed — replies are no longer possible.",
+      "waiting": "Reply sent. The moderator will write if anything else is needed.",
+      "sent": "Your reply was sent to the moderator"
+    },
+    "errors": {
+      "load": "Could not load complaints. Please try again later.",
+      "reply": "Could not send the reply. Please try again later.",
+      "replyLimit": "Please wait for the moderator before writing again.",
+      "closed": "The complaint is already closed."
+    },
+    "notFound": "Complaint not found"
   },
   "report": {
     "buttonLabel": "Report",
@@ -1724,7 +1781,11 @@
     "submit": "Submit",
     "cancel": "Cancel",
     "success": "Thanks. Your report was sent to moderators.",
-    "error": "Could not submit report. Please try again later."
+    "error": "Could not submit report. Please try again later.",
+    "targetSeesNotice": "The person you report will see the complaint but not who filed it.",
+    "alreadyReported": "You have already reported this — it is under review.",
+    "rateLimited": "Too many reports today. Please try again tomorrow.",
+    "targetGone": "This item has already been deleted."
   },
   "account": {
     "suspendedBanner": "Account restricted until {{date}}.",

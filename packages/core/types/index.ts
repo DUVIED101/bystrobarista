@@ -11,5 +11,6 @@ export * from './notificationPreferences';
 export * from './baristaProfile';
 export * from './review';
 export * from './userReport';
+export * from './complaint';
 export * from './employment';
 export * from './tutorial';

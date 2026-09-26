@@ -4,15 +4,16 @@
 
 -- 1. Realtime publication: the dump may carry CREATE PUBLICATION, but the
 --    self-hosted init already created an empty supabase_realtime. Pin the set
---    of tables the six postgres_changes channels listen on (migrations 050,
---    054, 104).
+--    of tables the postgres_changes channels listen on (migrations 050,
+--    054, 104, 135).
 ALTER PUBLICATION supabase_realtime SET TABLE
   public.messages,
   public.conversations,
   public.notifications,
   public.user_reports,
   public.applications,
-  public.application_disputes;
+  public.application_disputes,
+  public.complaint_messages;
 
 -- 2. pg_cron jobs live in cron.job (extension data, not dumped).
 --    Same definitions as migrations 124 and 127.

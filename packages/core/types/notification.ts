@@ -1,4 +1,5 @@
 import type { ConversationId } from './chat';
+import type { ComplaintKind } from './complaint';
 import type {
   ApplicationId,
   DisputeId,
@@ -8,6 +9,7 @@ import type {
   NotificationId,
   ReviewId,
   UserId,
+  UserReportId,
 } from './ids';
 
 type Brand<K, T> = K & { __brand: T };
@@ -44,6 +46,8 @@ export type NotificationKind =
   | 'employment_ended'
   | 'job_start_reminder'
   | 'report_resolved'
+  | 'complaint_info_requested'
+  | 'complaint_resolved'
   | 'admin_dm'
   | 'broadcast';
 
@@ -67,6 +71,9 @@ export type PushNotificationPayload = {
     reviewId?: ReviewId;
     offerId?: JobOfferId;
     disputeId?: DisputeId;
+    reportId?: UserReportId;
+    complaintKind?: ComplaintKind;
+    complaintId?: string;
     employmentId?: EmploymentId;
     jobTitle?: string;
     shiftStartIso?: string;

@@ -5,7 +5,6 @@ import type {
   CreateApplicationData,
   DisputeStatus,
   DisputeSummary,
-  MyDisputeItem,
   ShiftConfirmationStatus,
 } from '@bystrobarista/core/types/application';
 import type { ApplicationId, DisputeId, UserId } from '@bystrobarista/core/types/ids';
@@ -656,7 +655,7 @@ export class ApplicationService {
     const { data, error } = await supabase
       .from('application_disputes')
       .select(
-        'id, application_id, reporter_id, reportee_id, categories, severity, status, resolution_note, description, created_at'
+        'id, application_id, reporter_id, reportee_id, categories, severity, status, outcome, resolution_note, target_note, created_at'
       )
       .eq('application_id', applicationId);
     if (error) throw error;
@@ -666,31 +665,19 @@ export class ApplicationService {
     return ApplicationService.toDisputeSummary(row, userId);
   }
 
-  static async getDisputeById(disputeId: string): Promise<DisputeSummary | null> {
-    const userId = (await supabase.auth.getUser()).data.user?.id ?? '';
-    const { data, error } = await supabase
-      .from('application_disputes')
-      .select(
-        'id, application_id, reporter_id, reportee_id, categories, severity, status, resolution_note, description, created_at'
-      )
-      .eq('id', disputeId)
-      .maybeSingle();
-    if (error) throw error;
-    if (!data) return null;
-    return ApplicationService.toDisputeSummary(data, userId);
-  }
-
   private static toDisputeSummary(row: any, viewerUserId: string): DisputeSummary {
     const myRole: 'reporter' | 'reportee' =
       row.reporter_id === viewerUserId ? 'reporter' : 'reportee';
     return {
-      id: row.id,
+      id: row.id as DisputeId,
       applicationId: row.application_id,
       categories: row.categories ?? [],
       severity: row.severity,
       status: row.status as DisputeStatus,
-      resolutionNote: row.resolution_note ?? undefined,
-      description: row.description ?? undefined,
+      resolutionNote:
+        (myRole === 'reporter'
+          ? row.resolution_note
+          : (row.target_note ?? (row.outcome ? null : row.resolution_note))) ?? undefined,
       createdAt: row.created_at,
       myRole,
     };
@@ -704,7 +691,7 @@ export class ApplicationService {
     const { data, error } = await supabase
       .from('application_disputes')
       .select(
-        'id, application_id, reporter_id, reportee_id, categories, severity, status, resolution_note, description, created_at'
+        'id, application_id, reporter_id, reportee_id, categories, severity, status, outcome, resolution_note, target_note, created_at'
       )
       .in('application_id', applicationIds);
     if (error) throw error;
@@ -715,51 +702,6 @@ export class ApplicationService {
       map[row.application_id] = ApplicationService.toDisputeSummary(row, userId);
     }
     return map;
-  }
-
-  private static mapDisputeRow(row: any, myRole: 'reporter' | 'reportee'): MyDisputeItem {
-    return {
-      id: row.id as string,
-      applicationId: row.application_id as string,
-      categories: (row.categories ?? []) as string[],
-      severity: row.severity as string,
-      status: row.status as DisputeStatus,
-      resolutionNote: row.resolution_note ?? undefined,
-      createdAt: row.created_at as string,
-      jobTitle: row.applications?.jobs?.title as string | undefined,
-      businessName: row.applications?.jobs?.businesses?.name as string | undefined,
-      myRole,
-    };
-  }
-
-  static async getMyFiledDisputes(): Promise<MyDisputeItem[]> {
-    const userId = (await supabase.auth.getUser()).data.user?.id ?? '';
-    const { data, error } = await supabase
-      .from('application_disputes')
-      .select(
-        `id, application_id, categories, severity, status, resolution_note, created_at,
-         applications!inner(jobs!inner(title, businesses!inner(name)))`
-      )
-      .eq('reporter_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(100);
-    if (error) throw error;
-    return (data ?? []).map((row: any) => this.mapDisputeRow(row, 'reporter'));
-  }
-
-  static async getDisputesAgainstMe(): Promise<MyDisputeItem[]> {
-    const userId = (await supabase.auth.getUser()).data.user?.id ?? '';
-    const { data, error } = await supabase
-      .from('application_disputes')
-      .select(
-        `id, application_id, categories, severity, status, resolution_note, created_at,
-         applications!inner(jobs!inner(title, businesses!inner(name)))`
-      )
-      .eq('reportee_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(100);
-    if (error) throw error;
-    return (data ?? []).map((row: any) => this.mapDisputeRow(row, 'reportee'));
   }
 
   static async submitApplicationDispute(data: {
