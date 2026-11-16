@@ -12,6 +12,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const YANDEX_CLIENT_ID = Deno.env.get('YANDEX_CLIENT_ID') ?? '';
 
 const CORS_HEADERS: Record<string, string> = {
   'access-control-allow-origin': '*',
@@ -28,6 +29,7 @@ function jsonResponse(status: number, body: Record<string, unknown>): Response {
 
 type YandexUserInfo = {
   id: string;
+  client_id?: string;
   default_email?: string;
   emails?: string[];
   display_name?: string;
@@ -51,6 +53,7 @@ async function findUserByEmail(
   id: string;
   email_confirmed_at: string | null;
   user_metadata_provider: string | null;
+  yandex_user_id: string | null;
 } | null> {
   // listUsers is paginated. With small user counts this is fine; switch to a
   // proper REST query against auth.users when the directory grows.
@@ -58,13 +61,17 @@ async function findUserByEmail(
   for (let page = 1; page <= 50; page++) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
     if (error) throw error;
-    const match = data.users.find((u) => (u.email ?? '').toLowerCase() === email.toLowerCase());
+    const match = data.users.find(u => (u.email ?? '').toLowerCase() === email.toLowerCase());
     if (match) {
-      const meta = (match.user_metadata ?? {}) as { provider?: string };
+      const meta = (match.user_metadata ?? {}) as {
+        provider?: string;
+        yandex_user_id?: string;
+      };
       return {
         id: match.id,
         email_confirmed_at: match.email_confirmed_at ?? null,
         user_metadata_provider: typeof meta.provider === 'string' ? meta.provider : null,
+        yandex_user_id: meta.yandex_user_id != null ? String(meta.yandex_user_id) : null,
       };
     }
     if (data.users.length < perPage) return null;
@@ -80,7 +87,7 @@ Deno.serve(async (req: Request) => {
     return jsonResponse(405, { error: 'method_not_allowed' });
   }
 
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !YANDEX_CLIENT_ID) {
     return jsonResponse(500, { error: 'missing_service_config' });
   }
 
@@ -98,6 +105,13 @@ Deno.serve(async (req: Request) => {
   const yandexUser = await fetchYandexUser(accessToken);
   if (!yandexUser) {
     return jsonResponse(401, { error: 'yandex_token_invalid' });
+  }
+  // A token issued to any other Yandex app would otherwise log its holder in.
+  if (yandexUser.client_id !== YANDEX_CLIENT_ID) {
+    console.warn('yandex token client mismatch', {
+      hasClientId: Boolean(yandexUser.client_id),
+    });
+    return jsonResponse(401, { error: 'yandex_token_wrong_client' });
   }
   const email = (yandexUser.default_email || yandexUser.emails?.[0] || '').toLowerCase();
   if (!email) {
@@ -132,8 +146,13 @@ Deno.serve(async (req: Request) => {
       if (existing.user_metadata_provider !== 'yandex') {
         return jsonResponse(409, { error: 'email_already_registered' });
       }
+      if (existing.yandex_user_id && existing.yandex_user_id !== yandexUser.id) {
+        return jsonResponse(409, { error: 'email_already_registered' });
+      }
       if (!existing.email_confirmed_at) {
-        await admin.auth.admin.updateUserById(existing.id, { email_confirm: true });
+        await admin.auth.admin.updateUserById(existing.id, {
+          email_confirm: true,
+        });
       }
     }
 
@@ -142,10 +161,15 @@ Deno.serve(async (req: Request) => {
       email,
     });
     if (linkErr || !linkData) {
-      return jsonResponse(500, { error: linkErr?.message ?? 'link_generation_failed' });
+      return jsonResponse(500, {
+        error: linkErr?.message ?? 'link_generation_failed',
+      });
     }
 
-    const props = linkData.properties as { hashed_token?: string; action_link?: string };
+    const props = linkData.properties as {
+      hashed_token?: string;
+      action_link?: string;
+    };
     let tokenHash = props.hashed_token;
     if (!tokenHash && props.action_link) {
       const url = new URL(props.action_link);
