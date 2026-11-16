@@ -18,11 +18,17 @@ import type { TFunction } from 'i18next';
 import { COLORS, RADII } from '@bystrobarista/core/config/constants';
 import { BusinessService } from '@bystrobarista/core/services/BusinessService';
 import { ReviewService } from '@bystrobarista/core/services/ReviewService';
+import { safeExternalUrl } from '@bystrobarista/core/utils/safeUrl';
 import { StarRow } from '../../components/StarRow';
 import { FullscreenImageViewer } from '../../components/FullscreenImageViewer';
 import { ReportButton } from '../../components/ReportButton';
 import type { BaristaStackParamList } from '../../navigation/BaristaStack';
-import type { Business, Branch, SocialLink, SocialPlatform } from '@bystrobarista/core/types/business';
+import type {
+  Business,
+  Branch,
+  SocialLink,
+  SocialPlatform,
+} from '@bystrobarista/core/types/business';
 import type { UserId } from '@bystrobarista/core/types/ids';
 import type { UserReviewAggregate } from '@bystrobarista/core/types/review';
 
@@ -114,7 +120,9 @@ export const BusinessPublicProfileScreen: React.FC<Props> = ({ route, navigation
     navigation.navigate('BusinessJobs', { businessOwnerId, businessName: business?.name });
   }, [navigation, businessOwnerId, business?.name]);
 
-  const handleOpenLink = useCallback(async (url: string) => {
+  const handleOpenLink = useCallback(async (raw: string) => {
+    const url = safeExternalUrl(raw);
+    if (!url) return;
     const canOpen = await Linking.canOpenURL(url);
     if (canOpen) await Linking.openURL(url);
   }, []);

@@ -21,6 +21,20 @@ const SINGLETONS = [
   "@supabase/supabase-js",
 ];
 
+// Deliberately no script-src/connect-src CSP: Yandex Maps, Google/Apple
+// sign-in, Sentry and Supabase realtime load from many origins. HSTS is set
+// by nginx. geolocation stays allowed for our own origin (job distance).
+const SECURITY_HEADERS = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(self)",
+  },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -32,6 +46,9 @@ const nextConfig = {
   // write into the .next directory a running dev server is serving from —
   // clobbering it mid-request bricks the dev server with MODULE_NOT_FOUND.
   distDir: process.env.BB_DIST_DIR || ".next",
+  async headers() {
+    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+  },
   // Old complaint pages (disputes list, abuse reports) merged into /complaints;
   // links in old push notifications and bookmarks keep working.
   async redirects() {

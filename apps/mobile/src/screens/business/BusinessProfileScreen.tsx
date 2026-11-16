@@ -20,6 +20,7 @@ import { COLORS, RADII } from '@bystrobarista/core/config/constants';
 import { BusinessService } from '@bystrobarista/core/services/BusinessService';
 import { ReviewService } from '@bystrobarista/core/services/ReviewService';
 import { useAuthStore } from '@bystrobarista/core/stores/authStore';
+import { safeExternalUrl } from '@bystrobarista/core/utils/safeUrl';
 import { useNotificationFeedStore } from '../../stores/notificationFeedStore';
 import { ScreenHeaderWithActions } from '../../components/ScreenHeaderWithActions';
 import { FullscreenImageViewer } from '../../components/FullscreenImageViewer';
@@ -142,7 +143,9 @@ export const BusinessProfileScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('BusinessProfileSetup');
   }, [navigation]);
 
-  const handleOpenLink = useCallback(async (url: string) => {
+  const handleOpenLink = useCallback(async (raw: string) => {
+    const url = safeExternalUrl(raw);
+    if (!url) return;
     const canOpen = await Linking.canOpenURL(url);
     if (canOpen) await Linking.openURL(url);
   }, []);
