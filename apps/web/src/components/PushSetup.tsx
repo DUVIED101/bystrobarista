@@ -8,7 +8,10 @@ import { useAuthStore } from "@bystrobarista/core/stores/authStore";
 import { useTutorialStore } from "@bystrobarista/core/stores/tutorialStore";
 import type { UserId } from "@bystrobarista/core/types/ids";
 import type { PushNotificationPayload } from "@bystrobarista/core/types/notification";
-import { notificationHref } from "@/lib/notificationRoute";
+import {
+  notificationTarget,
+  openNotificationTarget,
+} from "@/lib/notificationRoute";
 import {
   isIosWithoutHomeScreenInstall,
   isWebPushSupported,
@@ -85,8 +88,9 @@ export function PushSetup(): React.JSX.Element | null {
             : payload.actionIdentifier === "JOB_OFFER_DECLINE"
               ? "declined"
               : undefined;
-        router.push(
-          notificationHref(
+        openNotificationTarget(
+          router,
+          notificationTarget(
             {
               kind: payload.kind,
               data: payload.data ?? { kind: payload.kind },

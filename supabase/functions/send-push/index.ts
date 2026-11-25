@@ -43,7 +43,16 @@ type NotificationKind =
   | "complaint_info_requested"
   | "complaint_resolved"
   | "admin_dm"
-  | "broadcast";
+  | "broadcast"
+  | "new_job_nearby"
+  | "application_reminder"
+  | "application_expired"
+  | "job_offer_reminder"
+  | "job_offer_expired"
+  | "profile_hidden"
+  | "app_update"
+  | "weekly_digest"
+  | "recurring_broadcast";
 
 type GatedKind =
   | "new_message"
@@ -64,10 +73,18 @@ type GatedKind =
   | "shift_confirmed"
   | "shift_declined"
   | "employment_started"
-  | "employment_ended";
+  | "employment_ended"
+  | "new_job_nearby"
+  | "application_reminder"
+  | "job_offer_reminder"
+  | "weekly_digest"
+  | "recurring_broadcast"
+  | "profile_hidden";
 // shift_confirmation_required, shift_no_response_alert, dispute_filed,
 // employment_start_due and employment_end_requested are deliberately excluded —
 // safety/moderation/action-required notifications cannot be turned off.
+// application_expired, job_offer_expired and app_update are excluded too —
+// they report an outcome or require action, so the user must see them.
 
 type NotificationPrefsRow = {
   new_message: boolean;
@@ -89,6 +106,10 @@ type NotificationPrefsRow = {
   shift_declined: boolean;
   employment_started: boolean;
   employment_ended: boolean;
+  new_job_nearby: boolean;
+  response_reminders: boolean;
+  weekly_digest: boolean;
+  product_news: boolean;
 };
 
 const GATED_KIND_COLUMNS: Readonly<Record<GatedKind, keyof NotificationPrefsRow>> = {
@@ -111,10 +132,37 @@ const GATED_KIND_COLUMNS: Readonly<Record<GatedKind, keyof NotificationPrefsRow>
   shift_declined: "shift_declined",
   employment_started: "employment_started",
   employment_ended: "employment_ended",
+  new_job_nearby: "new_job_nearby",
+  application_reminder: "response_reminders",
+  job_offer_reminder: "response_reminders",
+  weekly_digest: "weekly_digest",
+  recurring_broadcast: "product_news",
+  profile_hidden: "product_news",
 };
 
 function isGatedKind(kind: NotificationKind): kind is GatedKind {
   return kind in GATED_KIND_COLUMNS;
+}
+
+// iOS thread-id for engagement pushes: one stack per family instead of one
+// per shift/conversation, so a week of nudges does not flood the lock screen.
+function engagementThreadId(kind: NotificationKind): string | null {
+  switch (kind) {
+    case "new_job_nearby":
+      return "engagement:nearby";
+    case "application_reminder":
+    case "job_offer_reminder":
+    case "application_expired":
+    case "job_offer_expired":
+      return "engagement:reminders";
+    case "weekly_digest":
+    case "recurring_broadcast":
+    case "profile_hidden":
+    case "app_update":
+      return "engagement:digest";
+    default:
+      return null;
+  }
 }
 
 type SendApnsRequest = {
@@ -171,6 +219,15 @@ const KNOWN_KINDS: ReadonlySet<NotificationKind> = new Set<NotificationKind>([
   "complaint_resolved",
   "admin_dm",
   "broadcast",
+  "new_job_nearby",
+  "application_reminder",
+  "application_expired",
+  "job_offer_reminder",
+  "job_offer_expired",
+  "profile_hidden",
+  "app_update",
+  "weekly_digest",
+  "recurring_broadcast",
 ]);
 
 const JWT_TTL_SECONDS = 3300;
@@ -489,7 +546,7 @@ async function isKindEnabled(
   const { data, error } = await supabase
     .from("notification_preferences")
     .select(
-      "new_message, application_accepted, application_rejected, new_application, application_withdrawn, shift_cancelled, new_review, conversation_started, job_offer_received, job_offer_accepted, job_offer_declined, work_completion_requested, work_completion_confirmed, shift_reminder_24h, shift_reminder_3h, shift_confirmed, shift_declined, employment_started, employment_ended",
+      "new_message, application_accepted, application_rejected, new_application, application_withdrawn, shift_cancelled, new_review, conversation_started, job_offer_received, job_offer_accepted, job_offer_declined, work_completion_requested, work_completion_confirmed, shift_reminder_24h, shift_reminder_3h, shift_confirmed, shift_declined, employment_started, employment_ended, new_job_nearby, response_reminders, weekly_digest, product_news",
     )
     .eq("user_id", recipientId)
     .single();
@@ -625,7 +682,7 @@ async function handleRequest(req: Request): Promise<Response> {
               typeof applicationId === "string" &&
               applicationId.length > 0
             ? `employment:${applicationId}`
-            : null;
+            : engagementThreadId(request.kind);
 
   const outcomes: ApnsSendOutcome[] = [];
   const webOutcomes: WebPushOutcome[] = [];

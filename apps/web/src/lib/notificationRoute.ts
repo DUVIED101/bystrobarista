@@ -1,13 +1,18 @@
+import type { useRouter } from "next/navigation";
 import type {
   Notification,
   NotificationData,
   NotificationKind,
 } from "@bystrobarista/core/types/notification";
 import { complaintRefFromNotification } from "@bystrobarista/core/utils/complaints";
+import { safeExternalUrl } from "@/lib/safeUrl";
 
 export type RoutableNotification = Pick<Notification, "kind"> & {
   data: Partial<NotificationData>;
 };
+
+export type NotificationTarget =
+  { kind: "internal"; href: string } | { kind: "external"; url: string };
 
 // Web twin of mobile's dispatchPayload (navigationRef.ts): maps a notification
 // (feed row or push payload) to the route its tap should open, branched on
@@ -80,8 +85,57 @@ export const notificationHref = (
     }
     case "admin_dm":
     case "broadcast":
+    case "app_update":
       return "/notifications";
+    case "new_job_nearby":
+      return data.jobId ? `/jobs/${data.jobId}` : "/jobs";
+    case "weekly_digest":
+    case "recurring_broadcast":
+      return isBusiness ? "/baristas" : "/jobs";
+    case "application_reminder":
+      return isBusiness ? applicants : "/applications";
+    case "application_expired":
+      return "/jobs";
+    case "job_offer_reminder":
+      return data.offerId ? `/offers/${data.offerId}` : "/jobs";
+    case "job_offer_expired":
+      return "/baristas";
+    case "profile_hidden":
+      return "/profile/edit";
     default:
       return home;
   }
+};
+
+// app_update may carry an App Store link, which must not go through Next's
+// router. Every tap handler should resolve a target and hand it to
+// openNotificationTarget; notificationHref stays internal-only for callers
+// that compare paths.
+export const notificationTarget = (
+  notification: RoutableNotification,
+  accountType: "barista" | "business",
+  action?: "accepted" | "declined",
+): NotificationTarget => {
+  if (notification.kind === "app_update") {
+    const storeUrl = notification.data.storeUrl;
+    const url = storeUrl?.startsWith("https://")
+      ? safeExternalUrl(storeUrl)
+      : null;
+    if (url) return { kind: "external", url };
+  }
+  return {
+    kind: "internal",
+    href: notificationHref(notification, accountType, action),
+  };
+};
+
+export const openNotificationTarget = (
+  router: Pick<ReturnType<typeof useRouter>, "push">,
+  target: NotificationTarget,
+): void => {
+  if (target.kind === "external") {
+    window.open(target.url, "_blank", "noopener,noreferrer");
+    return;
+  }
+  router.push(target.href);
 };

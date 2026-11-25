@@ -50,6 +50,15 @@ const ICON_BY_KIND: Record<NotificationKind, string> = {
   complaint_resolved: 'shield-check-outline',
   admin_dm: 'shield-account-outline',
   broadcast: 'bullhorn-outline',
+  new_job_nearby: 'map-marker-radius-outline',
+  application_reminder: 'clock-alert-outline',
+  application_expired: 'clock-remove-outline',
+  job_offer_reminder: 'clock-alert-outline',
+  job_offer_expired: 'clock-remove-outline',
+  profile_hidden: 'eye-off-outline',
+  app_update: 'cellphone-arrow-down',
+  weekly_digest: 'newspaper-variant-outline',
+  recurring_broadcast: 'bullhorn-outline',
 };
 
 type ToastCardProps = {

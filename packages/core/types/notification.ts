@@ -49,7 +49,28 @@ export type NotificationKind =
   | 'complaint_info_requested'
   | 'complaint_resolved'
   | 'admin_dm'
-  | 'broadcast';
+  | 'broadcast'
+  | 'new_job_nearby'
+  | 'application_reminder'
+  | 'application_expired'
+  | 'job_offer_reminder'
+  | 'job_offer_expired'
+  | 'profile_hidden'
+  | 'app_update'
+  | 'weekly_digest'
+  | 'recurring_broadcast';
+
+export const ENGAGEMENT_NOTIFICATION_KINDS: readonly NotificationKind[] = [
+  'new_job_nearby',
+  'application_reminder',
+  'application_expired',
+  'job_offer_reminder',
+  'job_offer_expired',
+  'profile_hidden',
+  'app_update',
+  'weekly_digest',
+  'recurring_broadcast',
+];
 
 export const JOB_OFFER_ACTION_ACCEPT = 'JOB_OFFER_ACCEPT';
 export const JOB_OFFER_ACTION_DECLINE = 'JOB_OFFER_DECLINE';
@@ -77,6 +98,11 @@ export type PushNotificationPayload = {
     employmentId?: EmploymentId;
     jobTitle?: string;
     shiftStartIso?: string;
+    city?: 'spb' | 'moscow';
+    metroStation?: string;
+    /** Comma-separated job ids: the push pipeline only carries string data values. */
+    jobIds?: string;
+    storeUrl?: string;
   };
 };
 
