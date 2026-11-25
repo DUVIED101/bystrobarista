@@ -160,6 +160,7 @@ export const JobDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
       case 'under_review':
         return '#F59E0B';
       case 'withdrawn':
+      case 'expired':
         return '#6B7280';
       default:
         return COLORS.textSecondary;
@@ -180,6 +181,8 @@ export const JobDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
         return t('jobDetails.status.withdrawn', { defaultValue: 'Отозвано' });
       case 'completed':
         return t('jobDetails.status.completed', { defaultValue: 'Завершено' });
+      case 'expired':
+        return t('jobDetails.status.expired', { defaultValue: 'Закрыт — нет ответа' });
       default:
         return status;
     }

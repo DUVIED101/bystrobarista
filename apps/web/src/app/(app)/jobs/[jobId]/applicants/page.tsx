@@ -32,6 +32,7 @@ import {
   getShiftStart,
 } from "@bystrobarista/core/utils/shiftLifecycle";
 import { transformedImageUrl } from "@/lib/imageTransform";
+import { APPLICATION_BADGE, applicationStatusLabel } from "@/lib/applicationUi";
 import { EMPLOYMENT_BADGE } from "@/lib/employmentUi";
 import { useEmploymentActions } from "@/hooks/useEmploymentActions";
 import { EmploymentStagePanel } from "@/components/EmploymentStagePanel";
@@ -39,34 +40,6 @@ import { EndEmploymentModal } from "@/components/EndEmploymentModal";
 import { ReviewModal } from "@/components/ReviewModal";
 
 const CANCEL_WINDOW_MS = 60 * 60 * 1000;
-
-const STATUS_BADGE: Record<string, string> = {
-  pending: "bg-[#F59E0B]",
-  under_review: "bg-[#F59E0B]",
-  accepted: "bg-[#10B981]",
-  rejected: "bg-[#EF4444]",
-  withdrawn: "bg-[#6B7280]",
-  completed: "bg-[#6B7280]",
-};
-
-const statusLabel = (status: string, t: TFunction): string => {
-  switch (status) {
-    case "pending":
-      return t("applications.status.pending");
-    case "under_review":
-      return t("applications.status.underReview");
-    case "accepted":
-      return t("applications.status.accepted");
-    case "rejected":
-      return t("applications.status.rejected");
-    case "withdrawn":
-      return t("applications.status.withdrawn");
-    case "completed":
-      return t("applications.status.completed");
-    default:
-      return status;
-  }
-};
 
 const displayName = (app: Application, t: TFunction): string => {
   const profile = app.baristaProfile;
@@ -560,12 +533,12 @@ export default function ApplicantsPage(): React.JSX.Element {
                   className={`shrink-0 rounded-chip px-2 py-1 text-xs font-semibold text-white ${
                     employment
                       ? EMPLOYMENT_BADGE[employment.status]
-                      : (STATUS_BADGE[app.status] ?? "bg-ink-secondary")
+                      : APPLICATION_BADGE[app.status]
                   }`}
                 >
                   {employment
                     ? t(`employment.stageShort.${employment.status}`)
-                    : statusLabel(app.status, t)}
+                    : applicationStatusLabel(app.status, t)}
                 </span>
               </div>
 

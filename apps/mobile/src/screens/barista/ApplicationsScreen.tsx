@@ -48,6 +48,7 @@ const getStatusColor = (status: ApplicationStatus): string => {
     case 'under_review':
       return '#F59E0B';
     case 'withdrawn':
+    case 'expired':
       return '#6B7280';
     default:
       return COLORS.textSecondary;
@@ -66,6 +67,10 @@ const getStatusText = (status: ApplicationStatus, t: TFunction): string => {
       return t('applications.status.rejected', { defaultValue: 'Отклонено' });
     case 'withdrawn':
       return t('applications.status.withdrawn', { defaultValue: 'Отозвано' });
+    case 'completed':
+      return t('applications.status.completed', { defaultValue: 'Завершено' });
+    case 'expired':
+      return t('applications.status.expired', { defaultValue: 'Закрыт — нет ответа' });
     default:
       return status;
   }

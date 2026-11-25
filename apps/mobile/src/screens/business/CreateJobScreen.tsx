@@ -36,6 +36,7 @@ import type {
   ShiftDetails,
   WeekdayKey,
 } from '@bystrobarista/core/types/job';
+import type { JobId } from '@bystrobarista/core/types/ids';
 import type { BusinessStackParamList } from '../../navigation/BusinessStack';
 import type { MainTabsParamList } from '../../navigation/MainTabs';
 import {
@@ -626,8 +627,19 @@ export const CreateJobScreen: React.FC<Props> = ({ navigation, route }) => {
           { text: t('common.ok'), onPress: () => navigation.goBack() },
         ]);
       } else {
-        await JobService.createJob(jobData);
-        Alert.alert(t('common.success'), t('createJob.createdSuccess'), [
+        const created = await JobService.createJob(jobData);
+        let successMessage = t('createJob.createdSuccess');
+        try {
+          const audience = await JobService.countJobAudience(created.id as JobId);
+          successMessage +=
+            '\n\n' +
+            (audience > 0
+              ? t('createJob.audienceNotified', { count: audience })
+              : t('createJob.audienceNone'));
+        } catch (audienceError) {
+          console.warn('Error counting job audience:', audienceError);
+        }
+        Alert.alert(t('common.success'), successMessage, [
           { text: t('common.ok'), onPress: () => navigation.goBack() },
         ]);
       }
