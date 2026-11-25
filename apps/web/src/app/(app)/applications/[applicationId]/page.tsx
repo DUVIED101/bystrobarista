@@ -5,46 +5,19 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { TFunction } from "i18next";
 import { ApplicationService } from "@bystrobarista/core/services/ApplicationService";
 import { ReviewService } from "@bystrobarista/core/services/ReviewService";
 import { useAuthStore } from "@bystrobarista/core/stores/authStore";
 import { isPermanentApplication } from "@bystrobarista/core/utils/employment";
 import { getShiftEnd } from "@bystrobarista/core/utils/shiftLifecycle";
 import type { ApplicationId, UserId } from "@bystrobarista/core/types/ids";
-import type { ApplicationStatus } from "@bystrobarista/core/types/application";
+import { APPLICATION_BADGE, applicationStatusLabel } from "@/lib/applicationUi";
 import { formatDateOnly } from "@/lib/dates";
 import { EMPLOYMENT_BADGE } from "@/lib/employmentUi";
 import { useEmploymentActions } from "@/hooks/useEmploymentActions";
 import { EmploymentStagePanel } from "@/components/EmploymentStagePanel";
 import { EndEmploymentModal } from "@/components/EndEmploymentModal";
 import { ReviewModal } from "@/components/ReviewModal";
-
-const STATUS_BADGE: Record<ApplicationStatus, string> = {
-  pending: "bg-[#F59E0B]",
-  under_review: "bg-[#F59E0B]",
-  accepted: "bg-[#10B981]",
-  rejected: "bg-[#EF4444]",
-  withdrawn: "bg-[#6B7280]",
-  completed: "bg-[#6B7280]",
-};
-
-const statusLabel = (status: ApplicationStatus, t: TFunction): string => {
-  switch (status) {
-    case "pending":
-      return t("applications.status.pending");
-    case "under_review":
-      return t("applications.status.underReview");
-    case "accepted":
-      return t("applications.status.accepted");
-    case "rejected":
-      return t("applications.status.rejected");
-    case "withdrawn":
-      return t("applications.status.withdrawn");
-    case "completed":
-      return t("applications.status.completed");
-  }
-};
 
 // Port of ApplicationDetailsScreen (barista side): status, job summary,
 // cover letter, completion banners, withdraw / mark-complete / review /
@@ -174,12 +147,12 @@ export default function ApplicationDetailsPage(): React.JSX.Element {
           className={`rounded-full px-4 py-1.5 text-sm font-semibold text-white ${
             employment
               ? EMPLOYMENT_BADGE[employment.status]
-              : STATUS_BADGE[application.status]
+              : APPLICATION_BADGE[application.status]
           }`}
         >
           {employment
             ? t(`employment.stageShort.${employment.status}`)
-            : statusLabel(application.status, t)}
+            : applicationStatusLabel(application.status, t)}
         </span>
         <p className="mt-2 text-xs text-ink-secondary">
           {t("applications.details.appliedOn", {

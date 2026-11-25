@@ -16,6 +16,7 @@ import { transformedImageUrl } from "@/lib/imageTransform";
 const ARCHIVED_STATUSES: readonly string[] = [
   "rejected",
   "withdrawn",
+  "expired",
   "completed",
 ];
 
@@ -25,6 +26,7 @@ const STATUS_DOT: Record<string, string> = {
   pending: "bg-[#F59E0B]",
   under_review: "bg-[#F59E0B]",
   withdrawn: "bg-[#6B7280]",
+  expired: "bg-[#6B7280]",
 };
 
 const isArchived = (status?: string): boolean =>

@@ -18,7 +18,12 @@ import { queryKeys } from '../../lib/queryClient';
 import type { Conversation } from '@bystrobarista/core/types/chat';
 import type { ApplicationStatus } from '@bystrobarista/core/types/application';
 
-const ARCHIVED_STATUSES: ReadonlyArray<ApplicationStatus> = ['rejected', 'withdrawn', 'completed'];
+const ARCHIVED_STATUSES: ReadonlyArray<ApplicationStatus> = [
+  'rejected',
+  'withdrawn',
+  'completed',
+  'expired',
+];
 const isArchived = (status?: ApplicationStatus): boolean =>
   !!status && ARCHIVED_STATUSES.includes(status);
 
@@ -34,6 +39,7 @@ const getStatusColor = (status?: string): string => {
     case 'under_review':
       return '#F59E0B';
     case 'withdrawn':
+    case 'expired':
       return '#6B7280';
     default:
       return COLORS.textSecondary;

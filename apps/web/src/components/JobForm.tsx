@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { TFunction } from "i18next";
 import { getPlatform } from "@bystrobarista/core/platform";
 import { BusinessService } from "@bystrobarista/core/services/BusinessService";
 import { JobService } from "@bystrobarista/core/services/JobService";
@@ -24,6 +25,7 @@ import type {
   WeekdayKey,
 } from "@bystrobarista/core/types/job";
 import type { Equipment } from "@bystrobarista/core/types/business";
+import type { JobId } from "@bystrobarista/core/types/ids";
 import { computeShiftHours } from "@bystrobarista/core/utils/shiftHours";
 import { jobMaxDate, jobMinDate } from "@bystrobarista/core/utils/dateRanges";
 import {
@@ -110,6 +112,19 @@ const chip = (active: boolean): string =>
 const fieldLabel = "text-sm font-medium text-ink";
 const inputClass = (invalid?: boolean): string =>
   `rounded-input border ${invalid ? "border-error" : "border-line"} px-3 py-2 text-sm outline-none focus:border-primary`;
+
+// Audience preview is best-effort: the job is already published, so a failed
+// count must not turn the success alert into an error.
+const audienceLine = async (jobId: JobId, t: TFunction): Promise<string> => {
+  try {
+    const count = await JobService.countJobAudience(jobId);
+    return count > 0
+      ? t("createJob.audienceNotified", { count })
+      : t("createJob.audienceNone");
+  } catch {
+    return "";
+  }
+};
 
 type Errors = Partial<Record<string, string>>;
 
@@ -468,23 +483,28 @@ export function JobForm({
         },
         tags: selectedTags,
       };
+      let successMessage = t("createJob.updatedSuccess");
       if (isEditMode) {
         await JobService.updateJob(editJobId as string, base, user.id);
       } else {
         // createJob accepts Partial<Job>; platformFee/totalWithFee are
         // computed server-side from payment.totalAmount.
-        await JobService.createJob({
+        const created = await JobService.createJob({
           ...base,
           businessId: business.id,
           businessOwnerId: user.id,
         } as Partial<Job>);
+        successMessage = [
+          t("createJob.createdSuccess"),
+          await audienceLine(created.id as JobId, t),
+        ]
+          .filter(Boolean)
+          .join("\n");
       }
       await queryClient.invalidateQueries({ queryKey: ["jobs"] });
-      getPlatform().alert.show(
-        t("common.success"),
-        t(isEditMode ? "createJob.updatedSuccess" : "createJob.createdSuccess"),
-        [{ text: t("common.ok") }],
-      );
+      getPlatform().alert.show(t("common.success"), successMessage, [
+        { text: t("common.ok") },
+      ]);
       router.push(isEditMode ? `/jobs/${editJobId}` : "/dashboard");
     } catch (e) {
       console.error("Error saving job:", e);

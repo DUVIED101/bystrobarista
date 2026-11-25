@@ -182,7 +182,9 @@ export default function ChatConversationPage(): React.JSX.Element {
 
   const applicationStatus = conversation?.applicationStatus;
   const isClosed =
-    applicationStatus === "rejected" || applicationStatus === "withdrawn";
+    applicationStatus === "rejected" ||
+    applicationStatus === "withdrawn" ||
+    applicationStatus === "expired";
   const businessHasMessaged = useMemo(
     () =>
       Boolean(conversation?.firstBusinessMessageAt) ||
@@ -386,7 +388,13 @@ export default function ChatConversationPage(): React.JSX.Element {
           <p className="text-sm text-[#991B1B]">
             {applicationStatus === "withdrawn"
               ? t("chat.closed.cancelled")
-              : t("chat.closed.rejected")}
+              : applicationStatus === "expired"
+                ? t(
+                    isBarista
+                      ? "chat.closed.expired"
+                      : "chat.closed.expiredBusiness",
+                  )
+                : t("chat.closed.rejected")}
           </p>
         </div>
       ) : mustWaitForBusiness ? (

@@ -4,7 +4,7 @@ import type { Job } from './job';
 
 // Application Types
 export type ApplicationStatus =
-  'pending' | 'under_review' | 'accepted' | 'rejected' | 'withdrawn' | 'completed';
+  'pending' | 'under_review' | 'accepted' | 'rejected' | 'withdrawn' | 'completed' | 'expired';
 
 export type ShiftConfirmationStatus = 'pending' | 'confirmed' | 'declined' | 'no_response';
 
