@@ -5,7 +5,10 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@bystrobarista/core/stores/authStore";
 import type { Notification } from "@bystrobarista/core/types/notification";
-import { notificationHref } from "@/lib/notificationRoute";
+import {
+  notificationTarget,
+  openNotificationTarget,
+} from "@/lib/notificationRoute";
 import { useNotificationFeedStore } from "@/stores/notificationFeedStore";
 
 const TOAST_MS = 7000;
@@ -24,11 +27,16 @@ export function NotificationToastHost(): React.JSX.Element | null {
   useEffect(() => {
     if (!incoming || incoming.readAt || !accountType) return;
     if (document.visibilityState !== "visible") return;
-    const href = notificationHref(
+    const target = notificationTarget(
       { kind: incoming.kind, data: incoming.data },
       accountType,
     );
-    if (window.location.pathname === href.split("?")[0]) return;
+    if (
+      target.kind === "internal" &&
+      window.location.pathname === target.href.split("?")[0]
+    ) {
+      return;
+    }
     setToast(incoming);
     const timer = window.setTimeout(() => setToast(null), TOAST_MS);
     return () => window.clearTimeout(timer);
@@ -36,7 +44,7 @@ export function NotificationToastHost(): React.JSX.Element | null {
 
   if (!toast || !accountType) return null;
 
-  const href = notificationHref(
+  const target = notificationTarget(
     { kind: toast.kind, data: toast.data },
     accountType,
   );
@@ -51,7 +59,7 @@ export function NotificationToastHost(): React.JSX.Element | null {
         type="button"
         onClick={() => {
           setToast(null);
-          router.push(href);
+          openNotificationTarget(router, target);
         }}
         className="min-w-0 flex-1 text-left"
       >

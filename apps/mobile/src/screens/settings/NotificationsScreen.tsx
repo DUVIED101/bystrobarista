@@ -28,6 +28,10 @@ type PrefsState = {
   workCompletionConfirmed: boolean;
   employmentStarted: boolean;
   employmentEnded: boolean;
+  newJobNearby: boolean;
+  responseReminders: boolean;
+  weeklyDigest: boolean;
+  productNews: boolean;
 };
 
 const DEFAULT_PREFS: PrefsState = {
@@ -46,6 +50,10 @@ const DEFAULT_PREFS: PrefsState = {
   workCompletionConfirmed: true,
   employmentStarted: true,
   employmentEnded: true,
+  newJobNearby: true,
+  responseReminders: true,
+  weeklyDigest: true,
+  productNews: true,
 };
 
 type PrefRow = { key: PrefKey; labelKey: string };
@@ -61,6 +69,10 @@ const BARISTA_PREF_ROWS: ReadonlyArray<PrefRow> = [
   { key: 'employmentEnded', labelKey: 'settings.notifications.employmentEnded' },
   { key: 'shiftCancelled', labelKey: 'settings.notifications.shiftCancelled' },
   { key: 'newReview', labelKey: 'settings.notifications.newReview' },
+  { key: 'newJobNearby', labelKey: 'settings.notifications.newJobNearby' },
+  { key: 'responseReminders', labelKey: 'settings.notifications.responseRemindersBarista' },
+  { key: 'weeklyDigest', labelKey: 'settings.notifications.weeklyDigest' },
+  { key: 'productNews', labelKey: 'settings.notifications.productNews' },
 ];
 
 const BUSINESS_PREF_ROWS: ReadonlyArray<PrefRow> = [
@@ -74,6 +86,9 @@ const BUSINESS_PREF_ROWS: ReadonlyArray<PrefRow> = [
   { key: 'employmentEnded', labelKey: 'settings.notifications.employmentEnded' },
   { key: 'shiftCancelled', labelKey: 'settings.notifications.shiftCancelled' },
   { key: 'newReview', labelKey: 'settings.notifications.newReview' },
+  { key: 'responseReminders', labelKey: 'settings.notifications.responseRemindersBusiness' },
+  { key: 'weeklyDigest', labelKey: 'settings.notifications.weeklyDigest' },
+  { key: 'productNews', labelKey: 'settings.notifications.productNews' },
 ];
 
 export const NotificationsScreen: React.FC = () => {
@@ -117,6 +132,10 @@ export const NotificationsScreen: React.FC = () => {
             workCompletionConfirmed: loaded.workCompletionConfirmed,
             employmentStarted: loaded.employmentStarted,
             employmentEnded: loaded.employmentEnded,
+            newJobNearby: loaded.newJobNearby,
+            responseReminders: loaded.responseReminders,
+            weeklyDigest: loaded.weeklyDigest,
+            productNews: loaded.productNews,
           });
         }
       } catch (err) {

@@ -1,7 +1,9 @@
+import { Linking } from 'react-native';
 import { createNavigationContainerRef, CommonActions } from '@react-navigation/native';
 import { useAuthStore } from '@bystrobarista/core/stores/authStore';
 import type { PushNotificationPayload } from '@bystrobarista/core/types/notification';
 import { complaintRefFromNotification } from '@bystrobarista/core/utils/complaints';
+import { resolveEngagementRoute } from './engagementRoute';
 
 export const navigationRef = createNavigationContainerRef();
 
@@ -180,6 +182,18 @@ export const dispatchPayload = (payload: PushNotificationPayload): void => {
       navigateTab('Business', { screen: 'Applicants', params: { jobId } });
     } else {
       navigateTab('Business');
+    }
+    return;
+  }
+
+  const engagementRoute = resolveEngagementRoute(kind, accountType, payload.data);
+  if (engagementRoute) {
+    if ('openUrl' in engagementRoute) {
+      void Linking.openURL(engagementRoute.openUrl).catch(err =>
+        console.error('Error opening store url:', err)
+      );
+    } else {
+      navigateTab(engagementRoute.tab, engagementRoute.child);
     }
     return;
   }

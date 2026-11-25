@@ -1569,7 +1569,12 @@
       "shiftConfirmed": "Бариста подтвердил выход",
       "shiftDeclined": "Бариста отказался от смены",
       "employmentStarted": "Принятие в штат",
-      "employmentEnded": "Завершение сотрудничества"
+      "employmentEnded": "Завершение сотрудничества",
+      "newJobNearby": "Новые смены рядом",
+      "responseRemindersBarista": "Напоминания об офферах",
+      "responseRemindersBusiness": "Напоминания об откликах",
+      "weeklyDigest": "Итоги недели",
+      "productNews": "Подборки смен и новости сервиса"
     },
     "visibility": {
       "title": "Видимость",

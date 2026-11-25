@@ -33,6 +33,12 @@ import {
   mdiShieldCheckOutline,
   mdiShieldAccountOutline,
   mdiBullhornOutline,
+  mdiCellphoneArrowDown,
+  mdiClockAlertOutline,
+  mdiClockRemoveOutline,
+  mdiEyeOffOutline,
+  mdiMapMarkerRadiusOutline,
+  mdiNewspaperVariantOutline,
 } from "@mdi/js";
 import { useAuthStore } from "@bystrobarista/core/stores/authStore";
 import type { ConversationId } from "@bystrobarista/core/types/chat";
@@ -43,7 +49,10 @@ import type {
 } from "@bystrobarista/core/types/notification";
 import { MdiIcon } from "@/components/MdiIcon";
 import { PushEnableCard } from "@/components/PushEnableCard";
-import { notificationHref } from "@/lib/notificationRoute";
+import {
+  notificationTarget,
+  openNotificationTarget,
+} from "@/lib/notificationRoute";
 import { useNotificationFeedStore } from "@/stores/notificationFeedStore";
 
 type FeedItem =
@@ -114,6 +123,15 @@ const ICON_BY_KIND: Record<NotificationKind, string> = {
   complaint_resolved: mdiShieldCheckOutline,
   admin_dm: mdiShieldAccountOutline,
   broadcast: mdiBullhornOutline,
+  new_job_nearby: mdiMapMarkerRadiusOutline,
+  application_reminder: mdiClockAlertOutline,
+  application_expired: mdiClockRemoveOutline,
+  job_offer_reminder: mdiClockAlertOutline,
+  job_offer_expired: mdiClockRemoveOutline,
+  profile_hidden: mdiEyeOffOutline,
+  app_update: mdiCellphoneArrowDown,
+  weekly_digest: mdiNewspaperVariantOutline,
+  recurring_broadcast: mdiBullhornOutline,
 };
 
 function NotificationCard({
@@ -189,7 +207,10 @@ export default function NotificationsPage(): React.JSX.Element {
     (notification: Notification) => {
       const store = useNotificationFeedStore.getState();
       void store.markAsRead(notification.id).catch(() => {});
-      router.push(notificationHref(notification, accountType));
+      openNotificationTarget(
+        router,
+        notificationTarget(notification, accountType),
+      );
     },
     [router, accountType],
   );
@@ -199,7 +220,7 @@ export default function NotificationsPage(): React.JSX.Element {
       if (!userId) return;
       const store = useNotificationFeedStore.getState();
       void store.markConversationAsRead(userId, conversationId).catch(() => {});
-      router.push(notificationHref(items[0], accountType));
+      openNotificationTarget(router, notificationTarget(items[0], accountType));
     },
     [router, accountType, userId],
   );

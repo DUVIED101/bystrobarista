@@ -1548,7 +1548,12 @@
       "shiftConfirmed": "Shift confirmed by barista",
       "shiftDeclined": "Shift declined by barista",
       "employmentStarted": "Hired for a permanent position",
-      "employmentEnded": "Employment ended"
+      "employmentEnded": "Employment ended",
+      "newJobNearby": "New shifts nearby",
+      "responseRemindersBarista": "Offer reminders",
+      "responseRemindersBusiness": "Application reminders",
+      "weeklyDigest": "Weekly digest",
+      "productNews": "Shift picks and service news"
     },
     "visibility": {
       "title": "Visibility",
