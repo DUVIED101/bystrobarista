@@ -15,7 +15,11 @@ export type NotificationKindPref =
   | 'work_completion_requested'
   | 'work_completion_confirmed'
   | 'employment_started'
-  | 'employment_ended';
+  | 'employment_ended'
+  | 'new_job_nearby'
+  | 'response_reminders'
+  | 'weekly_digest'
+  | 'product_news';
 
 export type NotificationPreferences = {
   userId: UserId;
@@ -34,6 +38,10 @@ export type NotificationPreferences = {
   workCompletionConfirmed: boolean;
   employmentStarted: boolean;
   employmentEnded: boolean;
+  newJobNearby: boolean;
+  responseReminders: boolean;
+  weeklyDigest: boolean;
+  productNews: boolean;
   updatedAt: string;
 };
 
@@ -55,5 +63,9 @@ export type UpdateNotificationPreferences = Partial<
     | 'workCompletionConfirmed'
     | 'employmentStarted'
     | 'employmentEnded'
+    | 'newJobNearby'
+    | 'responseReminders'
+    | 'weeklyDigest'
+    | 'productNews'
   >
 >;

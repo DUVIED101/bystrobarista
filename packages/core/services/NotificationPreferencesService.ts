@@ -22,6 +22,10 @@ type PrefsRow = {
   work_completion_confirmed: boolean;
   employment_started: boolean;
   employment_ended: boolean;
+  new_job_nearby?: boolean;
+  response_reminders?: boolean;
+  weekly_digest?: boolean;
+  product_news?: boolean;
   updated_at: string;
 };
 
@@ -41,6 +45,10 @@ const CAMEL_TO_SNAKE: Readonly<Record<keyof UpdateNotificationPreferences, keyof
   workCompletionConfirmed: 'work_completion_confirmed',
   employmentStarted: 'employment_started',
   employmentEnded: 'employment_ended',
+  newJobNearby: 'new_job_nearby',
+  responseReminders: 'response_reminders',
+  weeklyDigest: 'weekly_digest',
+  productNews: 'product_news',
 };
 
 export class NotificationPreferencesService {
@@ -62,6 +70,10 @@ export class NotificationPreferencesService {
       workCompletionConfirmed: db.work_completion_confirmed,
       employmentStarted: db.employment_started ?? true,
       employmentEnded: db.employment_ended ?? true,
+      newJobNearby: db.new_job_nearby ?? true,
+      responseReminders: db.response_reminders ?? true,
+      weeklyDigest: db.weekly_digest ?? true,
+      productNews: db.product_news ?? true,
       updatedAt: db.updated_at,
     };
   }
