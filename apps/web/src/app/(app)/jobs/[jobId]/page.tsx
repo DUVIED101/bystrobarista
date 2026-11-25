@@ -30,6 +30,7 @@ const STATUS_BADGE: Record<string, string> = {
   pending: "bg-[#F59E0B]",
   under_review: "bg-[#F59E0B]",
   withdrawn: "bg-[#6B7280]",
+  expired: "bg-[#6B7280]",
 };
 
 const statusLabel = (status: string, t: TFunction): string => {
@@ -44,6 +45,8 @@ const statusLabel = (status: string, t: TFunction): string => {
       return t("jobDetails.status.rejected");
     case "withdrawn":
       return t("jobDetails.status.withdrawn");
+    case "expired":
+      return t("jobDetails.status.expired");
     case "completed":
       return t("jobDetails.status.completed");
     default:

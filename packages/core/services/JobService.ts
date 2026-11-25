@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase';
 import { withRetry } from '@bystrobarista/core/utils/withRetry';
+import type { JobId } from '@bystrobarista/core/types/ids';
 import type {
   Job,
   CreateJobData,
@@ -353,6 +354,16 @@ export class JobService {
       console.error('Error in updateJob:', error);
       throw error;
     }
+  }
+
+  /**
+   * Number of baristas the «Новая смена рядом» push will reach for a freshly
+   * created job. Owner-only RPC; callers treat a failure as "unknown".
+   */
+  static async countJobAudience(jobId: JobId): Promise<number> {
+    const { data, error } = await supabase.rpc('count_job_audience', { p_job_id: jobId });
+    if (error) throw error;
+    return Number(data ?? 0);
   }
 
   /**

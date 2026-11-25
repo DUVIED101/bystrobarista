@@ -182,7 +182,8 @@
       "accepted": "Accepted",
       "rejected": "Rejected",
       "withdrawn": "Withdrawn",
-      "completed": "Completed"
+      "completed": "Completed",
+      "expired": "Closed — no reply"
     },
     "details": {
       "applicationStatus": "Application Status",
@@ -317,7 +318,8 @@
       "accepted": "Accepted",
       "rejected": "Rejected",
       "withdrawn": "Withdrawn",
-      "completed": "Completed"
+      "completed": "Completed",
+      "expired": "Closed — no reply"
     },
     "applyBlockedTitle": "Complete your profile",
     "applyBlockedBody": "Your profile is {{current}}% complete. To apply for jobs it must be at least {{min}}% complete."
@@ -731,7 +733,9 @@
     "closed": {
       "title": "Chat closed",
       "rejected": "The business selected another candidate.",
-      "cancelled": "The shift was cancelled."
+      "cancelled": "The shift was cancelled.",
+      "expired": "The coffee shop did not reply within 7 days, so the application was closed automatically. Have a look at similar shifts.",
+      "expiredBusiness": "The application was closed automatically: you did not reply within 7 days."
     },
     "waitingForBusiness": {
       "title": "Wait for the business to message first",
@@ -997,7 +1001,11 @@
       "validationBody": "Please fill in all required fields"
     },
     "createdSuccess": "Job created successfully",
-    "updatedSuccess": "Job updated successfully"
+    "updatedSuccess": "Job updated successfully",
+    "audienceNotified": "We will notify {{count}} baristas nearby",
+    "audienceNotified_one": "We will notify {{count}} barista nearby",
+    "audienceNotified_other": "We will notify {{count}} baristas nearby",
+    "audienceNone": "No baristas nearby yet — the shift is visible in the feed"
   },
   "businessJobDetails": {
     "applicationsLabel": "Applications",

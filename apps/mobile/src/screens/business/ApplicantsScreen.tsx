@@ -64,6 +64,7 @@ const getStatusColor = (status: ApplicationStatus): string => {
     case 'under_review':
       return '#F59E0B';
     case 'withdrawn':
+    case 'expired':
       return '#6B7280';
     default:
       return COLORS.textSecondary;
@@ -84,6 +85,8 @@ const getStatusText = (status: ApplicationStatus, t: TFunction): string => {
       return t('applications.status.withdrawn');
     case 'completed':
       return t('applications.status.completed');
+    case 'expired':
+      return t('applications.status.expired');
     default:
       return status;
   }

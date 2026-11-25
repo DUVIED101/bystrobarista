@@ -472,7 +472,17 @@ export function ChatScreen({ navigation, route }: any) {
   }
 
   const isChatClosed =
-    conversation.applicationStatus === 'rejected' || conversation.applicationStatus === 'withdrawn';
+    conversation.applicationStatus === 'rejected' ||
+    conversation.applicationStatus === 'withdrawn' ||
+    conversation.applicationStatus === 'expired';
+  const closedReason =
+    conversation.applicationStatus === 'withdrawn'
+      ? t('chat.closed.cancelled')
+      : conversation.applicationStatus === 'expired'
+        ? user?.accountType === 'business'
+          ? t('chat.closed.expiredBusiness')
+          : t('chat.closed.expired')
+        : t('chat.closed.rejected');
   const employmentEnded =
     conversation.jobType === 'permanent' && conversation.employmentStatus === 'ended';
 
@@ -513,11 +523,7 @@ export function ChatScreen({ navigation, route }: any) {
       {isChatClosed ? (
         <View style={styles.closedBanner}>
           <Text style={styles.closedBannerTitle}>{t('chat.closed.title')}</Text>
-          <Text style={styles.closedBannerSubtitle}>
-            {conversation.applicationStatus === 'withdrawn'
-              ? t('chat.closed.cancelled')
-              : t('chat.closed.rejected')}
-          </Text>
+          <Text style={styles.closedBannerSubtitle}>{closedReason}</Text>
         </View>
       ) : mustWaitForBusiness ? (
         <View style={styles.closedBanner}>
