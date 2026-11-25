@@ -196,6 +196,58 @@ BEGIN
 END $$;
 
 -- ---------------------------------------------------------------------------
+-- limits count Moscow calendar days, not rolling intervals
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE
+  v_night UUID := test.make_user('cal-night@test.local');
+  v_digest UUID := test.make_user('cal-digest@test.local');
+  v_full UUID := test.make_user('cal-full@test.local');
+  v_result RECORD;
+BEGIN
+  UPDATE public.feature_flags SET value = '"on"' WHERE key = 'engagement_push_mode';
+
+  -- Daily: 23:30 MSK yesterday, then 10:00 MSK today -> both sent (a rolling
+  -- 24h window would have skipped the second one).
+  INSERT INTO app_internal.engagement_pushes (user_id, kind, title, body, dedupe_key, send_after, sent_at)
+  VALUES (v_night, 'recurring_broadcast', 't', 'b', 'cal:night1', '2026-03-09 23:30:00+03', '2026-03-09 23:30:00+03');
+  PERFORM app_internal.enqueue_engagement_push(v_night, 'recurring_broadcast', 't', 'b', '{}', 'cal:night2', '2026-03-10 10:00:00+03');
+  SELECT * INTO v_result FROM app_internal.process_engagement_pushes('2026-03-10 10:00:00+03');
+  ASSERT (v_result.sent, v_result.skipped, v_result.deferred) = (1, 0, 0), format('next MSK day: expected (1,0,0), got %s', v_result);
+  -- ...but a second one later the same MSK day is daily_limit.
+  PERFORM app_internal.enqueue_engagement_push(v_night, 'weekly_digest', 't', 'b', '{}', 'cal:night3', '2026-03-10 20:59:00+03');
+  SELECT * INTO v_result FROM app_internal.process_engagement_pushes('2026-03-10 20:59:00+03');
+  ASSERT (SELECT skipped_reason FROM app_internal.engagement_pushes WHERE dedupe_key = 'cal:night3') = 'daily_limit',
+    'second marketing push on the same MSK day must be daily_limit';
+
+  -- Weekly: Monday 11:00:30 digest, next Monday 11:00:05 -> sent (previous
+  -- Monday is outside today-6 regardless of cron jitter).
+  INSERT INTO app_internal.engagement_pushes (user_id, kind, title, body, dedupe_key, send_after, sent_at)
+  VALUES (v_digest, 'weekly_digest', 't', 'b', 'cal:mon1', '2026-03-02 11:00:30+03', '2026-03-02 11:00:30+03');
+  PERFORM app_internal.enqueue_engagement_push(v_digest, 'weekly_digest', 't', 'b', '{}', 'cal:mon2', '2026-03-09 11:00:00+03');
+  SELECT * INTO v_result FROM app_internal.process_engagement_pushes('2026-03-09 11:00:05+03');
+  ASSERT (v_result.sent, v_result.skipped, v_result.deferred) = (1, 0, 0), format('next Monday: expected (1,0,0), got %s', v_result);
+  ASSERT (SELECT sent_at FROM app_internal.engagement_pushes WHERE dedupe_key = 'cal:mon2') = '2026-03-09 11:00:05+03'::timestamptz;
+
+  -- Mon digest + Tue and Fri broadcasts, then a 4th on Sunday -> weekly_limit
+  -- (Monday is still inside Sunday-6).
+  INSERT INTO app_internal.engagement_pushes (user_id, kind, title, body, dedupe_key, send_after, sent_at)
+  VALUES
+    (v_full, 'weekly_digest',       't', 'b', 'cal:full-mon', '2026-03-02 11:00:00+03', '2026-03-02 11:00:00+03'),
+    (v_full, 'recurring_broadcast', 't', 'b', 'cal:full-tue', '2026-03-03 12:00:00+03', '2026-03-03 12:00:00+03'),
+    (v_full, 'recurring_broadcast', 't', 'b', 'cal:full-fri', '2026-03-06 12:00:00+03', '2026-03-06 12:00:00+03');
+  PERFORM app_internal.enqueue_engagement_push(v_full, 'profile_hidden', 't', 'b', '{}', 'cal:full-sun', '2026-03-08 12:00:00+03');
+  SELECT * INTO v_result FROM app_internal.process_engagement_pushes('2026-03-08 12:00:00+03');
+  ASSERT (v_result.sent, v_result.skipped, v_result.deferred) = (0, 1, 0), format('Sunday: expected (0,1,0), got %s', v_result);
+  ASSERT (SELECT skipped_reason FROM app_internal.engagement_pushes WHERE dedupe_key = 'cal:full-sun') = 'weekly_limit';
+  -- The same user's Monday digest a day later is fine: last Monday dropped out.
+  PERFORM app_internal.enqueue_engagement_push(v_full, 'weekly_digest', 't', 'b', '{}', 'cal:full-mon2', '2026-03-09 11:00:00+03');
+  SELECT * INTO v_result FROM app_internal.process_engagement_pushes('2026-03-09 11:00:00+03');
+  ASSERT (v_result.sent, v_result.skipped, v_result.deferred) = (1, 0, 0), format('following Monday: expected (1,0,0), got %s', v_result);
+  RAISE NOTICE 'ok: limits are counted by Moscow calendar day';
+END $$;
+
+-- ---------------------------------------------------------------------------
 -- new_job_nearby and reminder daily limits
 -- ---------------------------------------------------------------------------
 DO $$
