@@ -62,23 +62,13 @@ apps/mobile/test-search-detailed.js
 /CLAUDE.md
 /IMPLEMENTATION_PLAN.md
 /PRD.md
-docs/push-notifications-setup.md
-docs/testflight-setup.md
-docs/resend-custom-domain.md
-docs/pre-public-cleanup.md
-docs/RUNBOOK.md
-docs/DEPLOYMENT.md
-docs/ONCALL.md
-docs/CONTRIBUTING.md
-docs/CHANGELOG.md
-docs/email-templates.md
-docs/PHASE_8_REMAINING.md
 infra/README.md
 apps/mobile/scripts/seed-simulation.js
 apps/mobile/scripts/seed-test-jobs.js
 
 # Private content — kept local, not published
 admin/
+docs/
 supabase/migrations/
 AUDIT_REPORT.md
 
