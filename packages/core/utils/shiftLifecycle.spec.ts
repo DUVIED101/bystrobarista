@@ -39,6 +39,10 @@ describe('classifyShiftLifecycle', () => {
     );
   });
 
+  it('returns "open" when the only application expired without a business reply', () => {
+    expect(classifyShiftLifecycle(job('open'), apps(['expired']), beforeShift)).toBe('open');
+  });
+
   it('returns "under_review" when there is a pending application', () => {
     expect(classifyShiftLifecycle(job('open'), apps(['pending', 'rejected']), beforeShift)).toBe(
       'under_review'
@@ -132,6 +136,13 @@ describe('canBaristaCancelShift', () => {
         { status: 'completed', shiftConfirmationStatus: undefined },
         shift,
         longAfterShift
+      )
+    ).toBe(false);
+    expect(
+      canBaristaCancelShift(
+        { status: 'expired', shiftConfirmationStatus: undefined },
+        shift,
+        beforeShift
       )
     ).toBe(false);
   });
