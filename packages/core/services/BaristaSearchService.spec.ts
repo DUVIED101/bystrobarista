@@ -40,7 +40,7 @@ type QueryBuilderMock = {
 };
 
 const MOSCOW = 'Moscow';
-const DEFAULT_MIN_COMPLETENESS = 30;
+const DEFAULT_MIN_COMPLETENESS = 20;
 const PAGE_SIZE = 20;
 
 const SAMPLE_ROW: FilterRow = {

@@ -1,0 +1,1 @@
+export const MIN_PROFILE_COMPLETENESS = 20;

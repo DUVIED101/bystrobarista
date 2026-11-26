@@ -1,6 +1,9 @@
 import { supabase } from '../config/supabase';
 import type { User, UpdateUserData } from '@bystrobarista/core/types';
 
+// Servers without migration 152 only have the zero-argument touch_last_seen.
+const MISSING_RPC_OVERLOAD_CODE = 'PGRST202';
+
 export class UserService {
   /**
    * Map database user object to User type
@@ -141,8 +144,21 @@ export class UserService {
 
   // Best-effort "last seen" ping for the admin panel; a failure must never
   // surface to the user or block app launch.
-  static async touchLastSeen(): Promise<void> {
+  static async touchLastSeen(client?: {
+    platform: 'ios' | 'android' | 'web';
+    build: number | null;
+  }): Promise<void> {
     try {
+      if (client) {
+        const { error } = await supabase.rpc('touch_last_seen', {
+          p_platform: client.platform,
+          p_build: client.build,
+        });
+        if (error?.code !== MISSING_RPC_OVERLOAD_CODE) {
+          if (error) throw error;
+          return;
+        }
+      }
       const { error } = await supabase.rpc('touch_last_seen');
       if (error) throw error;
     } catch (error) {

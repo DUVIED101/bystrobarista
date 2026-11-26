@@ -1,11 +1,11 @@
 import { supabase } from '../config/supabase';
 import type { BaristaProfile, BaristaFilters } from '@bystrobarista/core/types/baristaProfile';
 import { METRO_ANY } from '../config/metroFilter';
+import { MIN_PROFILE_COMPLETENESS } from '../config/profile';
 
 // Exported so feed UIs can detect "server may have more" (a full page came back).
 export const BARISTA_SEARCH_PAGE_SIZE = 20;
 const PAGE_SIZE = BARISTA_SEARCH_PAGE_SIZE;
-const DEFAULT_MIN_COMPLETENESS = 30;
 
 export class BaristaSearchService {
   static async searchBaristas(filters: BaristaFilters, page = 0): Promise<BaristaProfile[]> {
@@ -69,7 +69,7 @@ export class BaristaSearchService {
 
       query = query.gte(
         'profile_completeness',
-        filters.minCompleteness ?? DEFAULT_MIN_COMPLETENESS
+        filters.minCompleteness ?? MIN_PROFILE_COMPLETENESS
       );
 
       const from = page * PAGE_SIZE;
