@@ -46,6 +46,8 @@ import {
 import { getCityLabel, isCityCode } from '@bystrobarista/core/types/city';
 import { MetroService } from '@bystrobarista/core/utils/metro';
 import { TutorialAnchor } from '../../components/tutorial/TutorialAnchor';
+import { navigateBusinessFlow } from '../../navigation/businessFlow';
+import { resolveOfferEntry, type OfferableJobsState } from '@bystrobarista/core/utils/offerRoute';
 
 type Props = {
   navigation: NativeStackNavigationProp<BusinessStackParamList, 'ViewBaristaProfile'>;
@@ -100,7 +102,7 @@ export const ViewBaristaProfileScreen: React.FC<Props> = ({ navigation, route })
   const [viewerPhotos, setViewerPhotos] = useState<string[]>([]);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [hasOfferableJobs, setHasOfferableJobs] = useState<boolean | null>(null);
+  const [offerableJobsState, setOfferableJobsState] = useState<OfferableJobsState>('loading');
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -146,10 +148,10 @@ export const ViewBaristaProfileScreen: React.FC<Props> = ({ navigation, route })
         ]);
         if (cancelled) return;
         const offered = new Set<string>(pendingOffers.map(o => o.jobId));
-        setHasOfferableJobs(openJobs.some(job => !offered.has(job.id)));
+        setOfferableJobsState(openJobs.some(job => !offered.has(job.id)) ? 'has_jobs' : 'no_jobs');
       } catch (error) {
         console.error('Error checking offerable jobs:', error);
-        if (!cancelled) setHasOfferableJobs(true);
+        if (!cancelled) setOfferableJobsState('error');
       }
     })();
     return () => {
@@ -159,8 +161,12 @@ export const ViewBaristaProfileScreen: React.FC<Props> = ({ navigation, route })
 
   const handleOfferJob = useCallback(() => {
     if (!profile) return;
-    navigation.navigate('OfferJob', { baristaId: profile.userId });
-  }, [navigation, profile]);
+    if (resolveOfferEntry(offerableJobsState) === 'create_job') {
+      navigateBusinessFlow(navigation, 'CreateJob', { offerToBaristaId: profile.userId });
+      return;
+    }
+    navigateBusinessFlow(navigation, 'OfferJob', { baristaId: profile.userId });
+  }, [navigation, profile, offerableJobsState]);
 
   const loadProfile = async () => {
     try {
@@ -517,12 +523,9 @@ export const ViewBaristaProfileScreen: React.FC<Props> = ({ navigation, route })
         {currentUser?.accountType === 'business' && profile.isActivelyLooking && (
           <View style={styles.messageButtonContainer}>
             <TouchableOpacity
-              style={[
-                styles.messageButton,
-                hasOfferableJobs === false && styles.messageButtonDisabled,
-              ]}
+              style={styles.messageButton}
               onPress={handleOfferJob}
-              disabled={hasOfferableJobs === false}
+              accessibilityRole="button"
               activeOpacity={0.7}>
               <TutorialAnchor
                 tutorialKey="barista.offer"
@@ -532,8 +535,8 @@ export const ViewBaristaProfileScreen: React.FC<Props> = ({ navigation, route })
               />
               <Text style={styles.messageButtonText}>{t('viewBarista.offerJob')}</Text>
             </TouchableOpacity>
-            {hasOfferableJobs === false && (
-              <Text style={styles.offerJobHint}>{t('viewBarista.offerJobAllOffered')}</Text>
+            {offerableJobsState === 'no_jobs' && (
+              <Text style={styles.offerJobHint}>{t('viewBarista.offerJobCreateFirst')}</Text>
             )}
           </View>
         )}
@@ -777,9 +780,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  messageButtonDisabled: {
-    opacity: 0.6,
   },
   messageButtonText: {
     fontSize: 16,

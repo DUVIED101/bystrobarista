@@ -13,6 +13,7 @@ import { ReviewService } from "@bystrobarista/core/services/ReviewService";
 import { ApplicationService } from "@bystrobarista/core/services/ApplicationService";
 import { BaristaProfileService } from "@bystrobarista/core/services/BaristaProfileService";
 import { useAuthStore } from "@bystrobarista/core/stores/authStore";
+import { MIN_PROFILE_COMPLETENESS } from "@bystrobarista/core/config/profile";
 import type { Job } from "@bystrobarista/core/types/job";
 import type { UserId } from "@bystrobarista/core/types/ids";
 import { StarRow } from "@/components/StarRow";
@@ -20,9 +21,6 @@ import { BusinessJobDetails } from "@/components/BusinessJobDetails";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { ReportButton } from "@/components/ReportButton";
 import { transformedImageUrl } from "@/lib/imageTransform";
-
-// Same gate as mobile JobDetailsScreen.
-const MIN_COMPLETENESS_TO_APPLY = 20;
 
 const STATUS_BADGE: Record<string, string> = {
   accepted: "bg-[#10B981]",
@@ -225,7 +223,7 @@ function BaristaJobDetails(): React.JSX.Element {
   const hasCheckedApplication = existingApplicationQuery.isSuccess;
   const completeness = profileQuery.data?.profileCompleteness ?? 0;
   const profileTooEmpty =
-    profileQuery.isSuccess && completeness < MIN_COMPLETENESS_TO_APPLY;
+    profileQuery.isSuccess && completeness < MIN_PROFILE_COMPLETENESS;
 
   const rows = shiftRows(job, t, locale);
   const patterns = job.shiftDetails.customSchedulePatterns ?? [];
@@ -423,7 +421,7 @@ function BaristaJobDetails(): React.JSX.Element {
             <div className="text-center">
               <p className="mb-2 text-sm text-ink-secondary">
                 {t("jobDetails.applyBlockedBody", {
-                  min: MIN_COMPLETENESS_TO_APPLY,
+                  min: MIN_PROFILE_COMPLETENESS,
                   current: completeness,
                   defaultValue:
                     "Профиль заполнен на {{current}}%. Чтобы откликаться на вакансии, его нужно заполнить минимум на {{min}}%.",

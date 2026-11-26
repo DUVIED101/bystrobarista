@@ -267,8 +267,7 @@
     "locationPermissionTitle": "Location access",
     "locationPermissionBody": "We use your location to find jobs near you. You can still use metro filters.",
     "profileBannerTitle": "Complete Your Profile",
-    "profileBannerSubtitleNoProfile": "Create your profile to stand out to employers",
-    "profileBannerSubtitlePercent": "Your profile is {{percent}}% complete"
+    "profileBannerSubtitleNoProfile": "Create your profile to stand out to employers"
   },
   "jobDetails": {
     "location": "Location",
@@ -1062,7 +1061,7 @@
     "allReviews": "All Reviews",
     "message": "Message",
     "offerJob": "Offer a vacancy",
-    "offerJobAllOffered": "No vacancies available to offer this barista",
+    "offerJobCreateFirst": "First, let's create a shift for this barista",
     "viewAvatarA11y": "View avatar fullscreen",
     "viewPortfolioPhotoA11y": "View portfolio photo {{index}}",
     "rateLimitTitle": "Rate limited",
@@ -1996,5 +1995,42 @@
     "notice": "The web version uses only strictly necessary cookies: to keep you signed in and remember your language and profile role. By clicking “I agree” you consent to their use under the Privacy Policy. Signing in is impossible without cookies.",
     "more": "Privacy Policy",
     "accept": "I agree"
+  },
+  "profileVisibility": {
+    "belowThreshold": {
+      "title": "Coffee shops can't see you",
+      "body": "To appear in search, add {{fields}}",
+      "bodyGeneric": "To appear in search, add more details to your profile",
+      "cta": "Complete profile"
+    },
+    "notLooking": {
+      "title": "You're hidden from coffee shops",
+      "body": "Turn on \"Looking for work\" so coffee shops can find you",
+      "toggle": "Looking for work"
+    },
+    "fields": {
+      "name": "your name and city",
+      "experience": "experience",
+      "metroStations": "metro stations",
+      "bio": "a short bio",
+      "workHistory": "work history",
+      "hourlyRate": "your hourly rate",
+      "portfolioPhotos": "photos",
+      "medicalBook": "medical book"
+    },
+    "and": " and "
+  },
+  "appUpdate": {
+    "soft": {
+      "title": "Update available",
+      "body": "The new version brings fixes and new features",
+      "cta": "Update",
+      "dismiss": "Later"
+    },
+    "blocked": {
+      "title": "Please update the app",
+      "body": "This version is no longer supported. Update the app in the App Store to continue",
+      "cta": "Open App Store"
+    }
   }
 }

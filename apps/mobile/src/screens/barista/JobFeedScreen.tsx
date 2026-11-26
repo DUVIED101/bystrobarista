@@ -36,6 +36,8 @@ import type { UserId } from '@bystrobarista/core/types/ids';
 import type { UserReviewAggregate } from '@bystrobarista/core/types/review';
 import { useTutorialStore } from '@bystrobarista/core/stores/tutorialStore';
 import { TutorialAnchor } from '../../components/tutorial/TutorialAnchor';
+import { ProfileVisibilityBanner } from '../../components/ProfileVisibilityBanner';
+import type { BaristaProfile } from '@bystrobarista/core/types/baristaProfile';
 
 type BaristaStackParamList = {
   JobFeed: undefined;
@@ -175,9 +177,19 @@ export const JobFeedScreen: React.FC<Props> = ({ navigation }) => {
   const appliedJobIds = appliedQuery.data ?? new Set<string>();
   const ownerAggregates = ownerAggregatesQuery.data ?? new Map<UserId, UserReviewAggregate>();
   const baristaProfile = profileQuery.data ?? null;
-  // Banner threshold matches the apply gate in JobDetailsScreen (20%).
-  const showProfileBanner =
-    profileQuery.isSuccess && (!baristaProfile || baristaProfile.profileCompleteness < 20);
+  const showCreateProfileBanner = profileQuery.isSuccess && !baristaProfile;
+
+  const handleEditProfile = useCallback(() => {
+    navigation.navigate('BaristaProfileSetup');
+  }, [navigation]);
+
+  const handleProfileUpdated = useCallback(
+    (updated: BaristaProfile) => {
+      if (!userId) return;
+      queryClient.setQueryData(queryKeys.baristaProfile.byUserId(userId), updated);
+    },
+    [queryClient, userId]
+  );
 
   const handleRefresh = useCallback(async (): Promise<void> => {
     await jobsQuery.refetch();
@@ -249,7 +261,7 @@ export const JobFeedScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {showProfileBanner && (
+      {showCreateProfileBanner && (
         <TouchableOpacity
           style={styles.profileBanner}
           onPress={() => navigation.navigate('BaristaProfileSetup')}>
@@ -263,18 +275,21 @@ export const JobFeedScreen: React.FC<Props> = ({ navigation }) => {
               {t('jobFeed.profileBannerTitle', { defaultValue: 'Заполните профиль' })}
             </Text>
             <Text style={styles.bannerSubtitle}>
-              {!baristaProfile
-                ? t('jobFeed.profileBannerSubtitleNoProfile', {
-                    defaultValue: 'Создайте профиль, чтобы выделяться среди кандидатов',
-                  })
-                : t('jobFeed.profileBannerSubtitlePercent', {
-                    percent: baristaProfile.profileCompleteness,
-                    defaultValue: 'Профиль заполнен на {{percent}}%',
-                  })}
+              {t('jobFeed.profileBannerSubtitleNoProfile', {
+                defaultValue: 'Создайте профиль, чтобы выделяться среди кандидатов',
+              })}
             </Text>
           </View>
           <Text style={styles.bannerArrow}>›</Text>
         </TouchableOpacity>
+      )}
+
+      {baristaProfile && (
+        <ProfileVisibilityBanner
+          profile={baristaProfile}
+          onEditProfile={handleEditProfile}
+          onProfileUpdated={handleProfileUpdated}
+        />
       )}
 
       <TutorialAnchor tutorialKey="feed.filters">

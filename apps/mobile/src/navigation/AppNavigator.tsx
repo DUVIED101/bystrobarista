@@ -10,6 +10,10 @@ import { ConnectionErrorScreen } from '../screens/auth/ConnectionErrorScreen';
 import { COLORS } from '@bystrobarista/core/config/constants';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ErrorToast } from '../components/ErrorToast';
+import { AppUpdateBanner } from '../components/AppUpdateBanner';
+import { AppUpdateRequiredScreen } from '../screens/AppUpdateRequiredScreen';
+import { useAppUpdatePrompt } from '../hooks/useAppUpdatePrompt';
+import { useWhatsNewStore } from '@bystrobarista/core/stores/whatsNewStore';
 
 export const AppNavigator: React.FC = () => {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
@@ -17,6 +21,9 @@ export const AppNavigator: React.FC = () => {
   const isLoading = useAuthStore(s => s.isLoading);
   const connectionError = useAuthStore(s => s.connectionError);
   const initialize = useAuthStore(s => s.initialize);
+  const isSignedIn = isAuthenticated && Boolean(user?.consentAcceptedAt);
+  const appUpdate = useAppUpdatePrompt(isSignedIn);
+  const isWhatsNewShowing = useWhatsNewStore(s => s.status === 'visible');
 
   useEffect(() => {
     initialize();
@@ -46,6 +53,9 @@ export const AppNavigator: React.FC = () => {
     if (!user || !user.consentAcceptedAt) {
       return <BootstrapStack key="bootstrap" />;
     }
+    if (appUpdate.prompt === 'blocked') {
+      return <AppUpdateRequiredScreen key="update-required" onUpdate={appUpdate.openStore} />;
+    }
     return <MainTabs key="authenticated" />;
   };
 
@@ -53,6 +63,11 @@ export const AppNavigator: React.FC = () => {
     <NavigationContainer ref={navigationRef} onReady={flushPendingPushPayload}>
       <ErrorBoundary>{renderRoot()}</ErrorBoundary>
       <ErrorToast />
+      <AppUpdateBanner
+        visible={isSignedIn && appUpdate.prompt === 'soft' && !isWhatsNewShowing}
+        onUpdate={appUpdate.openStore}
+        onDismiss={appUpdate.dismissSoft}
+      />
     </NavigationContainer>
   );
 };

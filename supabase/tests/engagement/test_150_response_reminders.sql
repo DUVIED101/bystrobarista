@@ -553,7 +553,7 @@ BEGIN
 END $$;
 
 -- ---------------------------------------------------------------------------
--- 8. Mode off: stamps and expiries still happen, nothing queued, no replay
+-- 8. Modes other than on: nothing stamped, expired or queued; on then catches up
 -- ---------------------------------------------------------------------------
 DO $$
 DECLARE
@@ -568,20 +568,27 @@ DECLARE
 BEGIN
   UPDATE public.feature_flags SET value = '"off"' WHERE key = 'engagement_push_mode';
 
-  ASSERT pg_temp.tick(v_t) = ARRAY[1, 1, 1, 0], 'mode off: reminders and expiries are still counted';
-  ASSERT pg_temp.app_state(v_app) = pg_temp.state('pending', v_t, v_t, NULL, NULL), 'mode off: application stamped';
-  ASSERT pg_temp.app_state(v_app_old) = pg_temp.state('expired', NULL, NULL, v_t, NULL), 'mode off: 7-day application expired';
-  ASSERT pg_temp.offer_state(v_offer) = pg_temp.state('pending', v_t, v_t, NULL, NULL), 'mode off: offer stamped';
+  ASSERT pg_temp.tick(v_t) = ARRAY[0, 0, 0, 0], 'mode off: tick does nothing';
+  ASSERT pg_temp.app_state(v_app) = pg_temp.state('pending', NULL, NULL, NULL, NULL), 'mode off: application untouched';
+  ASSERT pg_temp.app_state(v_app_old) = pg_temp.state('pending', NULL, NULL, NULL, NULL), 'mode off: no expiry';
+  ASSERT pg_temp.offer_state(v_offer) = pg_temp.state('pending', NULL, NULL, NULL, NULL), 'mode off: offer untouched';
+
+  UPDATE public.feature_flags SET value = '"dry_run"' WHERE key = 'engagement_push_mode';
+  ASSERT pg_temp.tick(v_t) = ARRAY[0, 0, 0, 0], 'mode dry_run: tick does nothing';
+  UPDATE public.feature_flags SET value = '"admins_only"' WHERE key = 'engagement_push_mode';
+  ASSERT pg_temp.tick(v_t) = ARRAY[0, 0, 0, 0], 'mode admins_only: tick does nothing';
   ASSERT pg_temp.push_count(v_biz) = 0 AND pg_temp.push_count(v_bar) = 0 AND pg_temp.push_count(v_bar_old) = 0,
-    'mode off: nothing queued';
+    'non-on modes: nothing queued';
 
   UPDATE public.feature_flags SET value = '"on"' WHERE key = 'engagement_push_mode';
-  ASSERT pg_temp.tick(v_t + INTERVAL '1 hour') = ARRAY[0, 0, 0, 0], 'mode on again: no replay of the stamped reminders';
-  ASSERT pg_temp.push_count(v_biz) = 0 AND pg_temp.push_count(v_bar) = 0 AND pg_temp.push_count(v_bar_old) = 0,
-    'mode on again: still nothing queued';
+  ASSERT pg_temp.tick(v_t + INTERVAL '1 hour') = ARRAY[1, 1, 1, 0], 'mode on: the held-back reminders and expiry go out';
+  ASSERT pg_temp.app_state(v_app_old) = pg_temp.state('expired', NULL, NULL, v_t + INTERVAL '1 hour', NULL),
+    'mode on: 7-day application expired';
+  ASSERT pg_temp.push_count(v_biz) = 1 AND pg_temp.push_count(v_bar) = 1 AND pg_temp.push_count(v_bar_old) = 1,
+    'mode on: one reminder each to the owner and the barista, one expiry push';
 
   DELETE FROM public.jobs WHERE id = v_job;
-  RAISE NOTICE 'ok: mode off';
+  RAISE NOTICE 'ok: only mode on acts';
 END $$;
 
 -- ---------------------------------------------------------------------------

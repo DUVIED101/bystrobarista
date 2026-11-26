@@ -99,17 +99,14 @@ import {
 import { computeMedicalBookStatus, type MedicalBookStatus } from '../../utils/medicalBook';
 import { showErrorToast } from '../../stores/errorToastStore';
 import { TutorialAnchor } from '../../components/tutorial/TutorialAnchor';
+import { ProfileVisibilityBanner } from '../../components/ProfileVisibilityBanner';
 
 type Props = {
   navigation: NativeStackNavigationProp<ProfileStackParamList, 'BaristaProfile'>;
 };
 
 type EditableSectionKey =
-  | 'personal'
-  | 'professional'
-  | 'workExperience'
-  | 'preferences'
-  | 'portfolio';
+  'personal' | 'professional' | 'workExperience' | 'preferences' | 'portfolio';
 
 const COMPLETENESS_TO_SECTION: Record<CompletenessItemKey, EditableSectionKey> = {
   basicInfo: 'personal',
@@ -721,6 +718,15 @@ export const BaristaProfileScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const handleEditFromBanner = useCallback(() => {
+    navigation.navigate('BaristaProfileSetup');
+  }, [navigation]);
+
+  const handleBannerProfileUpdated = useCallback((updated: BaristaProfile) => {
+    setProfile(prev => ({ ...updated, workExperiences: prev?.workExperiences }));
+    setIsActivelyLooking(updated.isActivelyLooking);
+  }, []);
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right']}>
@@ -826,6 +832,13 @@ export const BaristaProfileScreen: React.FC<Props> = ({ navigation }) => {
               tintColor={COLORS.primary}
             />
           }>
+          {!isEditing && (
+            <ProfileVisibilityBanner
+              profile={profile}
+              onEditProfile={handleEditFromBanner}
+              onProfileUpdated={handleBannerProfileUpdated}
+            />
+          )}
           <View style={styles.header}>
             {!isEditing && (
               <TouchableOpacity

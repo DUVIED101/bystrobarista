@@ -21,6 +21,7 @@ import type { UserId } from "@bystrobarista/core/types/ids";
 import type { UserReviewAggregate } from "@bystrobarista/core/types/review";
 import { JobCard } from "@/components/JobCard";
 import { FilterBar } from "@/components/FilterBar";
+import { ProfileVisibilityBanner } from "@/components/ProfileVisibilityBanner";
 
 function SkeletonCard(): React.JSX.Element {
   return (
@@ -32,9 +33,6 @@ function SkeletonCard(): React.JSX.Element {
     </div>
   );
 }
-
-// Same banner threshold as the apply gate in job details (20%).
-const MIN_COMPLETENESS_TO_APPLY = 20;
 
 function BaristaJobFeed(): React.JSX.Element {
   const { t } = useTranslation();
@@ -95,10 +93,7 @@ function BaristaJobFeed(): React.JSX.Element {
   const ownerAggregates =
     ownerAggregatesQuery.data ?? new Map<UserId, UserReviewAggregate>();
   const baristaProfile = profileQuery.data ?? null;
-  const showProfileBanner =
-    profileQuery.isSuccess &&
-    (!baristaProfile ||
-      baristaProfile.profileCompleteness < MIN_COMPLETENESS_TO_APPLY);
+  const showProfileBanner = profileQuery.isSuccess && !baristaProfile;
 
   return (
     <div>
@@ -115,11 +110,7 @@ function BaristaJobFeed(): React.JSX.Element {
               {t("jobFeed.profileBannerTitle")}
             </span>
             <span className="block text-sm text-[#92400E]">
-              {!baristaProfile
-                ? t("jobFeed.profileBannerSubtitleNoProfile")
-                : t("jobFeed.profileBannerSubtitlePercent", {
-                    percent: baristaProfile.profileCompleteness,
-                  })}
+              {t("jobFeed.profileBannerSubtitleNoProfile")}
             </span>
           </span>
           <span
@@ -130,6 +121,8 @@ function BaristaJobFeed(): React.JSX.Element {
           </span>
         </Link>
       )}
+
+      {baristaProfile && <ProfileVisibilityBanner profile={baristaProfile} />}
 
       <div data-tour="feed.filters">
         <FilterBar

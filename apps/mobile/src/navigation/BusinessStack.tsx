@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 
 export type BusinessStackParamList = {
   BusinessHome: { businessId?: string };
-  CreateJob: undefined;
+  CreateJob: { offerToBaristaId?: string } | undefined;
   EditJob: { jobId: string };
   JobDetails: { jobId: string };
   Applicants: { jobId: string };
   ViewBaristaProfile: { baristaId: string };
-  OfferJob: { baristaId: string };
+  OfferJob: { baristaId: string; jobId?: string };
   UserReviews: { userId: string };
   NotificationFeed: undefined;
   ShiftAlert: { applicationId: string; jobTitle: string; shiftStartIso: string };

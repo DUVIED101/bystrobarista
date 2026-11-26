@@ -5,5 +5,7 @@
 #import "RNAppAuthAuthorizationFlowManager.h"
 #import "RNAppAuthAuthorizationFlowManagerDelegate.h"
 #import <GoogleSignIn/GoogleSignIn.h>
+#import <React/RCTBridgeModule.h>
+#import <React/RCTBridge+Private.h>
 
 #endif

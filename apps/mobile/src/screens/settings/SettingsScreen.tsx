@@ -9,7 +9,7 @@ import { COLORS } from '@bystrobarista/core/config/constants';
 import { useAuthStore } from '@bystrobarista/core/stores/authStore';
 import { getCurrentLanguage } from '@bystrobarista/core/i18n';
 import type { SettingsStackParamList } from '../../navigation/SettingsStack';
-import { APP_VERSION } from '../../config/version';
+import { getAppVersionLabel } from '../../config/version';
 import { hasPasswordAuth } from '../../utils/authProvider';
 import { useTutorialStore } from '@bystrobarista/core/stores/tutorialStore';
 import { navigateToRoute } from '../../components/tutorial/tutorialBindings';
@@ -177,7 +177,7 @@ export const SettingsScreen: React.FC = () => {
             showChevron
           />
           <View style={styles.separator} />
-          <SettingsRow label={t('settings.items.appVersion')} value={APP_VERSION} />
+          <SettingsRow label={t('settings.items.appVersion')} value={getAppVersionLabel()} />
         </View>
 
         <Text style={styles.sectionHeader}>{t('settings.sections.activity').toUpperCase()}</Text>

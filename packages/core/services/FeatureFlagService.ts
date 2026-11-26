@@ -12,4 +12,15 @@ export class FeatureFlagService {
     const value = (data as { value?: { enabled?: unknown } } | null)?.value;
     return value?.enabled !== false;
   }
+
+  static async getNumber(key: string): Promise<number | null> {
+    const { data, error } = await supabase
+      .from('feature_flags')
+      .select('value')
+      .eq('key', key)
+      .maybeSingle();
+    if (error) throw error;
+    const value = (data as { value?: unknown } | null)?.value;
+    return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  }
 }

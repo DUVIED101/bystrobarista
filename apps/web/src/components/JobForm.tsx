@@ -25,7 +25,7 @@ import type {
   WeekdayKey,
 } from "@bystrobarista/core/types/job";
 import type { Equipment } from "@bystrobarista/core/types/business";
-import type { JobId } from "@bystrobarista/core/types/ids";
+import type { JobId, UserId } from "@bystrobarista/core/types/ids";
 import { computeShiftHours } from "@bystrobarista/core/utils/shiftHours";
 import { jobMaxDate, jobMinDate } from "@bystrobarista/core/utils/dateRanges";
 import {
@@ -133,8 +133,10 @@ type Errors = Partial<Record<string, string>>;
 // JobService payloads; only the pickers are native web inputs.
 export function JobForm({
   editJobId,
+  offerToBaristaId,
 }: {
   editJobId?: string;
+  offerToBaristaId?: UserId;
 }): React.JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
@@ -484,6 +486,7 @@ export function JobForm({
         tags: selectedTags,
       };
       let successMessage = t("createJob.updatedSuccess");
+      let offerRoute: string | null = null;
       if (isEditMode) {
         await JobService.updateJob(editJobId as string, base, user.id);
       } else {
@@ -500,12 +503,22 @@ export function JobForm({
         ]
           .filter(Boolean)
           .join("\n");
+        if (offerToBaristaId) {
+          offerRoute = `/baristas/${offerToBaristaId}/offer?jobId=${created.id}`;
+        }
       }
-      await queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["jobs"],
+        refetchType: offerRoute ? "all" : "active",
+      });
       getPlatform().alert.show(t("common.success"), successMessage, [
         { text: t("common.ok") },
       ]);
-      router.push(isEditMode ? `/jobs/${editJobId}` : "/dashboard");
+      if (offerRoute) {
+        router.replace(offerRoute);
+      } else {
+        router.push(isEditMode ? `/jobs/${editJobId}` : "/dashboard");
+      }
     } catch (e) {
       console.error("Error saving job:", e);
       setErrors({

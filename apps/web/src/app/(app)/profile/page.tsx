@@ -40,6 +40,7 @@ import {
 import { normalizePreferredMetroStations } from "@bystrobarista/core/config/metroFilter";
 import { MetroService } from "@bystrobarista/core/utils/metro";
 import { CitySelect } from "@/components/CitySelect";
+import { ProfileVisibilityBanner } from "@/components/ProfileVisibilityBanner";
 import type { GeoPoint } from "@bystrobarista/core/types/business";
 import type { BaristaProfileId, UserId } from "@bystrobarista/core/types/ids";
 import {
@@ -480,6 +481,10 @@ export default function ProfilePage(): React.JSX.Element {
             {t("baristaProfile.createCta")}
           </Link>
         </div>
+      )}
+
+      {isBarista && profile && !editing && (
+        <ProfileVisibilityBanner profile={profile} />
       )}
 
       {isBarista && profile && completeness && (

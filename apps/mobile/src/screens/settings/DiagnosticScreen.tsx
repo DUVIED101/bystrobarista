@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { COLORS } from '@bystrobarista/core/config/constants';
 import { ConnectivityReportPanel } from '../../components/ConnectivityReportPanel';
-import { APP_VERSION } from '../../config/version';
+import { getAppVersionLabel } from '../../config/version';
 import { SUPABASE_URL as ACTIVE_CLIENT_URL } from '../../config/supabase';
 import {
   DIRECT_URL,
@@ -51,7 +51,7 @@ export const DiagnosticScreen: React.FC = () => {
   const summary = useMemo(
     () =>
       [
-        `app: ${APP_VERSION}`,
+        `app: ${getAppVersionLabel()}`,
         `tz: ${tz}`,
         `tz-russian: ${tzIsRu ? 'yes' : 'no'}`,
         `proxy-configured: ${PROXY_URL ? 'yes' : 'no'}`,
