@@ -14,6 +14,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate, RNAppAuthAu
     self.moduleName = "coffeeproj"
     self.initialProps = [:]
 
+    // Swift cannot override +load, so register before super creates the bridge.
+    RCTRegisterModule(AppInfo.self)
+
     // Required for @react-native-community/push-notification-ios to forward
     // foreground presentation and tap events to JS via the 'notification' event.
     UNUserNotificationCenter.current().delegate = self
@@ -179,5 +182,24 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate, RNAppAuthAu
     // Wait up to 100ms for response
     _ = semaphore.wait(timeout: .now() + 0.1)
     return metroAvailable
+  }
+}
+
+@objc(AppInfo)
+final class AppInfo: NSObject, RCTBridgeModule {
+  static func moduleName() -> String! {
+    return "AppInfo"
+  }
+
+  static func requiresMainQueueSetup() -> Bool {
+    return false
+  }
+
+  func constantsToExport() -> [AnyHashable: Any]! {
+    let info = Bundle.main.infoDictionary
+    return [
+      "version": info?["CFBundleShortVersionString"] as? String ?? "",
+      "build": info?["CFBundleVersion"] as? String ?? "",
+    ]
   }
 }

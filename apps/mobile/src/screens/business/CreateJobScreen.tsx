@@ -121,6 +121,10 @@ export const CreateJobScreen: React.FC<Props> = ({ navigation, route }) => {
       ? (route.params as BusinessStackParamList['EditJob'] | undefined)?.jobId
       : undefined;
   const isEditMode = !!editJobId;
+  const offerToBaristaId =
+    route.name === 'CreateJob'
+      ? (route.params as BusinessStackParamList['CreateJob'])?.offerToBaristaId
+      : undefined;
 
   const [branches, setBranches] = useState<Branch[]>([]);
   const [businessId, setBusinessId] = useState<string | null>(null);
@@ -640,7 +644,23 @@ export const CreateJobScreen: React.FC<Props> = ({ navigation, route }) => {
           console.warn('Error counting job audience:', audienceError);
         }
         Alert.alert(t('common.success'), successMessage, [
-          { text: t('common.ok'), onPress: () => navigation.goBack() },
+          {
+            text: t('common.ok'),
+            onPress: () => {
+              if (!offerToBaristaId) {
+                navigation.goBack();
+                return;
+              }
+              const offerParams = { baristaId: offerToBaristaId, jobId: created.id };
+              const { routes } = navigation.getState();
+              // Came from OfferJob's empty state: pop back to it instead of stacking a second one.
+              if (routes[routes.length - 2]?.name === 'OfferJob') {
+                navigation.navigate('OfferJob', offerParams);
+              } else {
+                navigation.replace('OfferJob', offerParams);
+              }
+            },
+          },
         ]);
       }
     } catch (error) {

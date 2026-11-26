@@ -27,6 +27,7 @@ import { useAuthStore } from '@bystrobarista/core/stores/authStore';
 import type { Job } from '@bystrobarista/core/types/job';
 import type { JobId, UserId } from '@bystrobarista/core/types/ids';
 import type { BusinessStackParamList } from '../../navigation/BusinessStack';
+import { navigateBusinessFlow } from '../../navigation/businessFlow';
 import { clampToEffectiveLength, effectiveTextLength } from '../../utils/textLength';
 import { showErrorToast } from '../../stores/errorToastStore';
 import { handleApiError } from '../../utils/handleApiError';
@@ -40,7 +41,7 @@ type Props = {
 const MESSAGE_MAX = 280;
 
 export const OfferJobScreen: React.FC<Props> = ({ navigation, route }) => {
-  const { baristaId } = route.params;
+  const { baristaId, jobId: preselectedJobId } = route.params;
   const { t } = useTranslation();
   const currentUser = useAuthStore(state => state.user);
 
@@ -68,8 +69,13 @@ export const OfferJobScreen: React.FC<Props> = ({ navigation, route }) => {
           }),
         ]);
         if (cancelled) return;
+        const offered = new Set<string>(pendingOffers.map(o => o.jobId));
         setJobs(jobsData);
-        setOfferedJobIds(new Set(pendingOffers.map(o => o.jobId)));
+        setOfferedJobIds(offered);
+        const preselected = preselectedJobId
+          ? jobsData.find(job => job.id === preselectedJobId && !offered.has(job.id))
+          : undefined;
+        if (preselected) setSelectedJob(preselected);
       } catch (error) {
         console.error('Error loading own jobs:', error);
         showErrorToast(t('offerJob.loadFailure'));
@@ -80,7 +86,7 @@ export const OfferJobScreen: React.FC<Props> = ({ navigation, route }) => {
     return () => {
       cancelled = true;
     };
-  }, [currentUser?.id, baristaId, t]);
+  }, [currentUser?.id, baristaId, preselectedJobId, t]);
 
   const closeModal = useCallback(() => {
     if (isSending) return;
@@ -202,7 +208,9 @@ export const OfferJobScreen: React.FC<Props> = ({ navigation, route }) => {
             <Text style={styles.emptyText}>{t('offerJob.empty')}</Text>
             <TouchableOpacity
               style={styles.emptyCtaButton}
-              onPress={() => navigation.navigate('CreateJob')}>
+              onPress={() =>
+                navigateBusinessFlow(navigation, 'CreateJob', { offerToBaristaId: baristaId })
+              }>
               <Text style={styles.emptyCtaText}>{t('offerJob.emptyCta')}</Text>
             </TouchableOpacity>
           </View>

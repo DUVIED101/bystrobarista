@@ -26,6 +26,7 @@ import type { Application } from '@bystrobarista/core/types/application';
 import type { UserId } from '@bystrobarista/core/types/ids';
 import type { UserReviewAggregate } from '@bystrobarista/core/types/review';
 import { TutorialAnchor } from '../../components/tutorial/TutorialAnchor';
+import { MIN_PROFILE_COMPLETENESS } from '@bystrobarista/core/config/profile';
 
 type BaristaStackParamList = {
   JobFeed: undefined;
@@ -59,8 +60,6 @@ export const JobDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
   const [viewerVisible, setViewerVisible] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [profileCompleteness, setProfileCompleteness] = useState<number | null>(null);
-
-  const MIN_COMPLETENESS_TO_APPLY = 20;
 
   useFocusEffect(
     useCallback(() => {
@@ -133,11 +132,11 @@ export const JobDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
 
   const handleApply = () => {
     if (!job || isNavigating) return;
-    if (profileCompleteness !== null && profileCompleteness < MIN_COMPLETENESS_TO_APPLY) {
+    if (profileCompleteness !== null && profileCompleteness < MIN_PROFILE_COMPLETENESS) {
       Alert.alert(
         t('jobDetails.applyBlockedTitle', { defaultValue: 'Заполните профиль' }),
         t('jobDetails.applyBlockedBody', {
-          min: MIN_COMPLETENESS_TO_APPLY,
+          min: MIN_PROFILE_COMPLETENESS,
           current: profileCompleteness,
           defaultValue:
             'Профиль заполнен на {{current}}%. Чтобы откликаться на вакансии, его нужно заполнить минимум на {{min}}%.',
@@ -263,10 +262,10 @@ export const JobDetailsScreen: React.FC<Props> = ({ navigation, route }) => {
         </View>
       ) : (
         <View style={styles.footer}>
-          {profileCompleteness !== null && profileCompleteness < MIN_COMPLETENESS_TO_APPLY && (
+          {profileCompleteness !== null && profileCompleteness < MIN_PROFILE_COMPLETENESS && (
             <Text style={styles.applyBlockedHint}>
               {t('jobDetails.applyBlockedHint', {
-                min: MIN_COMPLETENESS_TO_APPLY,
+                min: MIN_PROFILE_COMPLETENESS,
                 current: profileCompleteness,
                 defaultValue:
                   'Заполните профиль до {{min}}%, чтобы откликаться. Сейчас {{current}}%.',

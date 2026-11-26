@@ -36,7 +36,7 @@ const BusinessSearchStackBoundary = wrapWithBoundary(BusinessSearchStack);
 const ChatsStackPhoneBoundary = wrapWithBoundary(ChatsStack);
 const ChatsStackTabletBoundary = wrapWithBoundary(ChatsStackTablet);
 import { COLORS } from '@bystrobarista/core/config/constants';
-import { BusinessStack } from './BusinessStack';
+import { BusinessStack, type BusinessStackParamList } from './BusinessStack';
 import { BusinessProfileStack, type BusinessProfileStackParamList } from './BusinessProfileStack';
 import { BusinessSearchStack } from './BusinessSearchStack';
 import { BaristaStack } from './BaristaStack';
@@ -52,7 +52,7 @@ export type MainTabsParamList = {
   Profile: NavigatorScreenParams<BusinessProfileStackParamList> | undefined;
   Jobs: undefined;
   Applications: undefined;
-  Business: undefined;
+  Business: NavigatorScreenParams<BusinessStackParamList> | undefined;
   Baristas: undefined;
   Chats: NavigatorScreenParams<ChatsStackParamList> | undefined;
 };

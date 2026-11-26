@@ -14,7 +14,7 @@ import { SUPABASE_URL } from '@env';
 import { COLORS } from '@bystrobarista/core/config/constants';
 import { useDiagnosticsStore } from '../stores/diagnosticsStore';
 import type { ConnectivityReport, ProbeTargetId } from '../utils/connectivityProbe';
-import { APP_VERSION } from '../config/version';
+import { getAppVersionLabel } from '../config/version';
 import { FORCE_PROXY_STORAGE_KEY, PROXY_URL } from '../config/supabaseHost';
 
 const labelKey = (id: ProbeTargetId): string => `connectionError.probe.${id}`;
@@ -27,7 +27,7 @@ const buildDiagnosticText = (report: ConnectivityReport | null): string => {
   });
   lines.push(`url: ${SUPABASE_URL}`);
   if (PROXY_URL) lines.push(`proxy: ${PROXY_URL}`);
-  lines.push(`app: ${APP_VERSION}`);
+  lines.push(`app: ${getAppVersionLabel()}`);
   try {
     lines.push(`tz: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`);
   } catch {

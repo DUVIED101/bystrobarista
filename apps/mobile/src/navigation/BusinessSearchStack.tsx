@@ -6,7 +6,7 @@ import { COLORS } from '@bystrobarista/core/config/constants';
 export type BusinessSearchStackParamList = {
   BaristaFeed: undefined;
   ViewBaristaProfile: { baristaId: string };
-  OfferJob: { baristaId: string };
+  OfferJob: { baristaId: string; jobId?: string };
   UserReviews: { userId: string };
   NotificationFeed: undefined;
 };
