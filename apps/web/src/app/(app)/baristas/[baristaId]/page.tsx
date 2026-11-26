@@ -18,6 +18,10 @@ import { getCityLabel, isCityCode } from "@bystrobarista/core/types/city";
 import { MetroService } from "@bystrobarista/core/utils/metro";
 import type { BaristaProfileId, UserId } from "@bystrobarista/core/types/ids";
 import { computeMedicalBookStatus } from "@bystrobarista/core/utils/medicalBook";
+import {
+  resolveOfferEntry,
+  type OfferableJobsState,
+} from "@bystrobarista/core/utils/offerRoute";
 import { ReportButton } from "@/components/ReportButton";
 import { StarRow } from "@/components/StarRow";
 import { ImageLightbox } from "@/components/ImageLightbox";
@@ -37,8 +41,8 @@ const MEDICAL_BOOK_CLASSES: Record<string, string> = {
 };
 
 // Web port of mobile's ViewBaristaProfileScreen: public barista profile for
-// businesses with the offer-job CTA (gated on isActivelyLooking and on
-// having at least one open job without a pending offer to this barista).
+// businesses with the offer-job CTA (gated on isActivelyLooking; with no
+// open job left to offer it routes to job creation first).
 export default function ViewBaristaProfilePage(): React.JSX.Element {
   const { t, i18n } = useTranslation();
   const locale = i18n.language === "ru" ? "ru-RU" : "en-US";
@@ -111,7 +115,14 @@ export default function ViewBaristaProfilePage(): React.JSX.Element {
   const offeredJobIds = new Set(
     (pendingOffersQuery.data ?? []).map((o) => o.jobId as string),
   );
-  const hasOfferableJobs = openJobs.some((j) => !offeredJobIds.has(j.id));
+  const offerableJobsState: OfferableJobsState = openJobsQuery.isError
+    ? "error"
+    : openJobsQuery.isPending || pendingOffersQuery.isPending
+      ? "loading"
+      : openJobs.some((j) => !offeredJobIds.has(j.id))
+        ? "has_jobs"
+        : "no_jobs";
+  const offerEntry = resolveOfferEntry(offerableJobsState);
 
   const medicalStatus = computeMedicalBookStatus(profile.medicalBookExpiresOn);
   const medicalDate = profile.medicalBookExpiresOn
@@ -385,27 +396,21 @@ export default function ViewBaristaProfilePage(): React.JSX.Element {
 
       {isBusiness && profile.isActivelyLooking && (
         <div className="mt-6">
-          {hasOfferableJobs ? (
-            <Link
-              href={`/baristas/${baristaId}/offer`}
-              data-tour="barista.offer"
-              className="block rounded-card bg-primary px-4 py-3 text-center text-sm font-semibold text-white"
-            >
-              {t("viewBarista.offerJob")}
-            </Link>
-          ) : (
-            <>
-              <button
-                type="button"
-                disabled
-                className="w-full rounded-card bg-primary px-4 py-3 text-sm font-semibold text-white opacity-50"
-              >
-                {t("viewBarista.offerJob")}
-              </button>
-              <p className="mt-1 text-center text-xs text-ink-secondary">
-                {t("viewBarista.offerJobAllOffered")}
-              </p>
-            </>
+          <Link
+            href={
+              offerEntry === "offer"
+                ? `/baristas/${baristaId}/offer`
+                : `/jobs/new?offerTo=${baristaId}`
+            }
+            data-tour="barista.offer"
+            className="block rounded-card bg-primary px-4 py-3 text-center text-sm font-semibold text-white"
+          >
+            {t("viewBarista.offerJob")}
+          </Link>
+          {offerableJobsState === "no_jobs" && (
+            <p className="mt-1 text-center text-xs text-ink-secondary">
+              {t("viewBarista.offerJobCreateFirst")}
+            </p>
           )}
         </div>
       )}

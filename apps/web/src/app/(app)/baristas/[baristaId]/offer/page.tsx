@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { getPlatform } from "@bystrobarista/core/platform";
@@ -25,12 +25,13 @@ const MESSAGE_MAX = 280;
 // Web port of mobile's OfferJobScreen: pick one of the business's open jobs,
 // optionally attach a 280-char message, send via JobOfferService with the
 // same duplicate/already-applied error handling.
-export default function OfferJobPage(): React.JSX.Element {
+function OfferJobForm(): React.JSX.Element {
   const { t, i18n } = useTranslation();
   const locale = i18n.language === "ru" ? "ru-RU" : "en-US";
   const params = useParams<{ baristaId: string }>();
   const baristaId = params.baristaId as UserId;
   const router = useRouter();
+  const preselectJobId = useSearchParams().get("jobId");
   const user = useAuthStore((s) => s.user);
 
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -58,6 +59,31 @@ export default function OfferJobPage(): React.JSX.Element {
   const offeredJobIds = new Set([
     ...(pendingOffersQuery.data ?? []).map((o) => o.jobId as string),
     ...locallyOffered,
+  ]);
+
+  const preselectHandled = useRef(false);
+  useEffect(() => {
+    if (preselectHandled.current || !preselectJobId) return;
+    if (
+      !jobsQuery.isSuccess ||
+      jobsQuery.isFetching ||
+      pendingOffersQuery.isPending
+    ) {
+      return;
+    }
+    preselectHandled.current = true;
+    const offeredIds = new Set(
+      (pendingOffersQuery.data ?? []).map((o) => o.jobId as string),
+    );
+    const job = jobsQuery.data.find((j) => j.id === preselectJobId);
+    if (job && !offeredIds.has(job.id)) setSelectedJob(job);
+  }, [
+    preselectJobId,
+    jobsQuery.isSuccess,
+    jobsQuery.isFetching,
+    jobsQuery.data,
+    pendingOffersQuery.isPending,
+    pendingOffersQuery.data,
   ]);
 
   const closeModal = (): void => {
@@ -245,5 +271,13 @@ export default function OfferJobPage(): React.JSX.Element {
         </div>
       )}
     </div>
+  );
+}
+
+export default function OfferJobPage(): React.JSX.Element {
+  return (
+    <Suspense fallback={null}>
+      <OfferJobForm />
+    </Suspense>
   );
 }

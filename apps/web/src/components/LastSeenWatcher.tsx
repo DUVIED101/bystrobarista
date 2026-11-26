@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { UserService } from "@bystrobarista/core/services/UserService";
 import { useAuthStore } from "@bystrobarista/core/stores/authStore";
 
+const WEB_CLIENT = { platform: "web", build: null } as const;
+
 // Headless: marks the signed-in user as seen when the app opens and whenever
 // the tab becomes visible again; the server keeps at most one write per
 // 5 minutes. Mounted once in the (app) layout.
@@ -12,10 +14,10 @@ export function LastSeenWatcher(): null {
 
   useEffect(() => {
     if (!userId) return;
-    void UserService.touchLastSeen();
+    void UserService.touchLastSeen(WEB_CLIENT);
     const onVisible = (): void => {
       if (document.visibilityState === "visible") {
-        void UserService.touchLastSeen();
+        void UserService.touchLastSeen(WEB_CLIENT);
       }
     };
     document.addEventListener("visibilitychange", onVisible);
