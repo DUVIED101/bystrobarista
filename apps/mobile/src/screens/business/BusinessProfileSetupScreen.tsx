@@ -342,10 +342,10 @@ export const BusinessProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         : await BusinessService.createBusiness({
             ownerId: user.id,
             name: name.trim(),
-            description: description.trim() || undefined,
+            description: description.trim(),
             businessType,
             legalForm,
-            website: website.trim() || undefined,
+            website: website.trim(),
             socialLinks: sanitizedSocialLinks,
           });
 

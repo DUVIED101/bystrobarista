@@ -154,10 +154,10 @@ export function BusinessProfileForm(): React.JSX.Element {
         saved = await BusinessService.createBusiness({
           ownerId: user.id as UserId,
           name: name.trim(),
-          description: description.trim() || undefined,
+          description: description.trim(),
           businessType,
           legalForm,
-          website: website.trim() || undefined,
+          website: website.trim(),
           socialLinks: cleanedLinks,
         });
       }

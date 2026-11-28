@@ -453,7 +453,7 @@ export function JobForm({
         branchId: selectedBranchId,
         jobType,
         title: title.trim(),
-        description: description.trim() || undefined,
+        description: description.trim(),
         requirements: requirements.map((r) => r.trim()).filter((r) => r !== ""),
         requiredEquipmentExperience: selectedEquipment,
         location: {

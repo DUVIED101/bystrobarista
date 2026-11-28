@@ -292,7 +292,7 @@ function BaristaProfileEditWizard(): React.JSX.Element {
         lastName: lastName.trim(),
         city,
         dateOfBirth: dateOfBirth || undefined,
-        bio: bio.trim() || undefined,
+        bio: bio.trim(),
         yearsOfExperience: yearsOfExperience
           ? parseFloat(yearsOfExperience)
           : undefined,
