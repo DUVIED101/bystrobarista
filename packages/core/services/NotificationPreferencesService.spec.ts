@@ -12,8 +12,6 @@ import { NotificationPreferencesService } from './NotificationPreferencesService
 
 const USER_ID = 'user-uuid-1' as UserId;
 const UPDATED_AT_ISO = '2026-11-25T09:00:00.000Z';
-const NOT_FOUND_CODE = 'PGRST116';
-
 const LEGACY_ROW = {
   user_id: USER_ID,
   new_message: true,
@@ -71,6 +69,7 @@ type QueryCapture = {
   eqCalls: Array<[string, unknown]>;
   upsertRow: Record<string, unknown> | null;
   upsertOptions: unknown;
+  maybeSingleCalls: number;
 };
 
 const newCapture = (): QueryCapture => ({
@@ -79,6 +78,7 @@ const newCapture = (): QueryCapture => ({
   eqCalls: [],
   upsertRow: null,
   upsertOptions: null,
+  maybeSingleCalls: 0,
 });
 
 type SingleResult = { data: unknown; error: { code: string } | null };
@@ -103,6 +103,10 @@ const useTableMock = (capture: QueryCapture, result: SingleResult): void => {
         return builder;
       }),
       single: jest.fn(() => Promise.resolve(result)),
+      maybeSingle: jest.fn(() => {
+        capture.maybeSingleCalls += 1;
+        return Promise.resolve(result);
+      }),
     };
     return builder;
   });
@@ -150,13 +154,16 @@ describe('getPreferences', () => {
     });
   });
 
-  it('returns null when the row does not exist', async () => {
+  it('reads with maybeSingle and returns null when the user has no row yet', async () => {
     const capture = newCapture();
-    useTableMock(capture, { data: null, error: { code: NOT_FOUND_CODE } });
+    useTableMock(capture, { data: null, error: null });
 
     const result = await NotificationPreferencesService.getPreferences(USER_ID);
 
-    expect(result).toBeNull();
+    expect({ result, maybeSingleCalls: capture.maybeSingleCalls }).toEqual({
+      result: null,
+      maybeSingleCalls: 1,
+    });
   });
 });
 
