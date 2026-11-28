@@ -589,7 +589,7 @@ export const CreateJobScreen: React.FC<Props> = ({ navigation, route }) => {
         branchId: selectedBranchId,
         jobType,
         title: title.trim(),
-        description: description.trim() || undefined,
+        description: description.trim(),
         requirements: filteredRequirements,
         requiredEquipmentExperience: selectedEquipment,
         location: {

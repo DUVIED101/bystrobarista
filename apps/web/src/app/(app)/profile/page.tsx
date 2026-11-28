@@ -293,7 +293,7 @@ export default function ProfilePage(): React.JSX.Element {
         lastName: form.lastName.trim(),
         city: form.city,
         dateOfBirth: form.dateOfBirth || undefined,
-        bio: form.bio.trim() || undefined,
+        bio: form.bio.trim(),
         yearsOfExperience: form.yearsOfExperience
           ? parseFloat(form.yearsOfExperience)
           : undefined,

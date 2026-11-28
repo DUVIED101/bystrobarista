@@ -327,7 +327,7 @@ export const BaristaProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         lastName: lastName.trim(),
         city,
         dateOfBirth: dateOfBirth.trim() || undefined,
-        bio: bio.trim() || undefined,
+        bio: bio.trim(),
         yearsOfExperience: yearsOfExperience ? parseFloat(yearsOfExperience) : undefined,
         equipmentExperience: selectedEquipment,
         certifications,
