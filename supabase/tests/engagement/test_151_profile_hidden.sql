@@ -45,9 +45,9 @@ $$;
 -- ---------------------------------------------------------------------------
 -- 1. Fixture data
 -- ---------------------------------------------------------------------------
--- All baristas looking with completeness 19 and seen 1 day ago unless noted:
+-- All baristas looking with completeness 29 and seen 1 day ago unless noted:
 --   included: a, e seen 89 d, j completeness 0, k completeness NULL
---   excluded: b completeness 20, c not looking, d seen 91 d, f banned,
+--   excluded: b completeness 30, c not looking, d seen 91 d, f banned,
 --             g inactive, h admin, i never seen
 DO $$
 DECLARE
@@ -64,9 +64,9 @@ BEGIN
   v_u := test.make_user('ph-h@test.local', 'barista', true);
   INSERT INTO test_ids VALUES ('bar_h', v_u);
 
-  UPDATE public.barista_profiles SET profile_completeness = 19
+  UPDATE public.barista_profiles SET profile_completeness = 29
    WHERE user_id IN (SELECT t.id FROM test_ids t WHERE t.k LIKE 'bar_%');
-  UPDATE public.barista_profiles SET profile_completeness = 20 WHERE user_id = pg_temp.tid('bar_b');
+  UPDATE public.barista_profiles SET profile_completeness = 30 WHERE user_id = pg_temp.tid('bar_b');
   UPDATE public.barista_profiles SET is_actively_looking = false WHERE user_id = pg_temp.tid('bar_c');
   UPDATE public.barista_profiles SET profile_completeness = 0 WHERE user_id = pg_temp.tid('bar_j');
   UPDATE public.barista_profiles SET profile_completeness = NULL WHERE user_id = pg_temp.tid('bar_k');
@@ -95,11 +95,11 @@ DECLARE
   v_expected JSONB;
 BEGIN
   v_expected := jsonb_build_array(
-    pg_temp.exp_row('a', 1, 19), pg_temp.exp_row('e', 1, 19), pg_temp.exp_row('j', 1, 0), pg_temp.exp_row('k', 1, 0));
+    pg_temp.exp_row('a', 1, 29), pg_temp.exp_row('e', 1, 29), pg_temp.exp_row('j', 1, 0), pg_temp.exp_row('k', 1, 0));
   v_actual := pg_temp.audience(v_now);
   ASSERT v_actual = v_expected,
     'first audience: ' || E'\nactual:   ' || v_actual::TEXT || E'\nexpected: ' || v_expected::TEXT;
-  RAISE NOTICE 'ok: audience (completeness 19 / 0 / NULL in, 20 out; not looking, 91 d, banned, inactive, admin, never seen out)';
+  RAISE NOTICE 'ok: audience (completeness 29 / 0 / NULL in, 30 out; not looking, 91 d, banned, inactive, admin, never seen out)';
 
   UPDATE public.feature_flags SET value = '"off"' WHERE key = 'engagement_push_mode';
   ASSERT app_internal.process_profile_hidden(v_now) = 0, 'mode off: nothing is queued';
@@ -120,14 +120,14 @@ BEGIN
   ASSERT app_internal.process_profile_hidden(v_now + INTERVAL '14 days') = 0, 'exactly 14 days later is still too early';
   -- e (seen 89 days before v_now) is past the 90-day window by then.
   ASSERT pg_temp.audience(v_now + INTERVAL '14 days 1 second')
-       = jsonb_build_array(pg_temp.exp_row('a', 2, 19), pg_temp.exp_row('j', 2, 0), pg_temp.exp_row('k', 2, 0)),
+       = jsonb_build_array(pg_temp.exp_row('a', 2, 29), pg_temp.exp_row('j', 2, 0), pg_temp.exp_row('k', 2, 0)),
     'past 14 days the still-active recipients are due for attempt 2';
 
   -- a's first push is 15 days old and was skipped (dry_run): it still counts.
   UPDATE app_internal.engagement_pushes
      SET created_at = v_now - INTERVAL '15 days', skipped_reason = 'dry_run'
    WHERE dedupe_key = 'ph:' || v_a || ':1';
-  ASSERT pg_temp.audience(v_now) = jsonb_build_array(pg_temp.exp_row('a', 2, 19)), 'a is due for attempt 2 (a skipped attempt counts)';
+  ASSERT pg_temp.audience(v_now) = jsonb_build_array(pg_temp.exp_row('a', 2, 29)), 'a is due for attempt 2 (a skipped attempt counts)';
   ASSERT app_internal.process_profile_hidden(v_now) = 1, 'second run queues attempt 2 for a only';
   ASSERT (SELECT ep.send_after FROM app_internal.engagement_pushes ep WHERE ep.dedupe_key = 'ph:' || v_a || ':2') = v_now,
     'attempt 2 row carries dedupe_key ph:<user>:2';
@@ -135,7 +135,7 @@ BEGIN
   UPDATE app_internal.engagement_pushes
      SET created_at = v_now - INTERVAL '15 days', sent_at = v_now - INTERVAL '15 days'
    WHERE dedupe_key = 'ph:' || v_a || ':2';
-  ASSERT pg_temp.audience(v_now) = jsonb_build_array(pg_temp.exp_row('a', 3, 19)), 'a is due for attempt 3 (a sent attempt counts)';
+  ASSERT pg_temp.audience(v_now) = jsonb_build_array(pg_temp.exp_row('a', 3, 29)), 'a is due for attempt 3 (a sent attempt counts)';
   ASSERT app_internal.process_profile_hidden(v_now) = 1, 'third run queues attempt 3 for a only';
 
   UPDATE app_internal.engagement_pushes
@@ -149,9 +149,9 @@ BEGIN
     'a ends with exactly three profile_hidden rows plus the unrelated digest row';
 
   -- Completing the profile stops the sequence even when an attempt is due.
-  UPDATE public.barista_profiles SET profile_completeness = 20 WHERE user_id = pg_temp.tid('bar_j');
+  UPDATE public.barista_profiles SET profile_completeness = 30 WHERE user_id = pg_temp.tid('bar_j');
   ASSERT pg_temp.audience(v_now + INTERVAL '15 days') = jsonb_build_array(pg_temp.exp_row('k', 2, 0)),
-    'j reached 20 % and leaves the audience; only k is due for attempt 2';
+    'j reached 30 % and leaves the audience; only k is due for attempt 2';
 
   RAISE NOTICE 'ok: process_profile_hidden (mode off, dedupe ph:<user>:<attempt>, 14-day spacing, 3 attempts max)';
 END $$;

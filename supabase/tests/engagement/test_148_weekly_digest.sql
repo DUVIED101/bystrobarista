@@ -56,13 +56,13 @@ BEGIN
   ASSERT (SELECT visible_since FROM public.barista_profiles WHERE user_id = v_bar) = v_preset,
     'a client-sent change of visible_since is discarded';
 
-  UPDATE public.barista_profiles SET profile_completeness = 19 WHERE user_id = v_bar;
+  UPDATE public.barista_profiles SET profile_completeness = 29 WHERE user_id = v_bar;
   ASSERT (SELECT visible_since FROM public.barista_profiles WHERE user_id = v_bar) IS NULL,
-    'completeness below 20 clears visible_since';
+    'completeness below 30 clears visible_since';
 
-  UPDATE public.barista_profiles SET profile_completeness = 20 WHERE user_id = v_bar;
+  UPDATE public.barista_profiles SET profile_completeness = 30 WHERE user_id = v_bar;
   ASSERT (SELECT visible_since FROM public.barista_profiles WHERE user_id = v_bar) = now(),
-    'reaching completeness 20 sets visible_since again';
+    'reaching completeness 30 sets visible_since again';
 
   UPDATE public.barista_profiles SET is_actively_looking = false WHERE user_id = v_bar;
   ASSERT (SELECT visible_since FROM public.barista_profiles WHERE user_id = v_bar) IS NULL,
@@ -93,8 +93,12 @@ BEGIN
   RAISE NOTICE 'ok: visible_since trigger';
 END $$;
 
--- Re-applying the migration (idempotent) runs the backfill again.
+-- Re-applying the migration (idempotent) runs the backfill again. 153 is
+-- re-applied right after: it CREATE OR REPLACEs the same functions with the
+-- 30 % threshold, and re-running 148 alone would otherwise regress them back
+-- to 20 % for the rest of this file.
 \ir ../../migrations/148_weekly_digest.sql
+\ir ../../migrations/153_profile_threshold_30.sql
 
 DO $$
 DECLARE
@@ -130,7 +134,7 @@ DECLARE
   v_b02 UUID := test.make_user('t2-b02-any@test.local');
   v_b03 UUID := test.make_user('t2-b03-moscow@test.local');
   v_b04 UUID := test.make_user('t2-b04-empty-city@test.local');
-  v_b05 UUID := test.make_user('t2-b05-completeness-19@test.local');
+  v_b05 UUID := test.make_user('t2-b05-completeness-29@test.local');
   v_b06 UUID := test.make_user('t2-b06-seen-61d@test.local');
   v_b07 UUID := test.make_user('t2-b07-never-seen@test.local');
   v_b08 UUID := test.make_user('t2-b08-admin@test.local', 'barista', true);
@@ -180,7 +184,7 @@ BEGIN
   UPDATE public.barista_profiles SET preferred_metro_stations = ARRAY['__any__'] WHERE user_id = v_b02;
   UPDATE public.barista_profiles SET city = 'moscow', preferred_metro_stations = ARRAY['__any__'] WHERE user_id = v_b03;
   UPDATE public.barista_profiles SET city = 'kazan', preferred_metro_stations = ARRAY['__any__'] WHERE user_id = v_b04;
-  UPDATE public.barista_profiles SET profile_completeness = 19, preferred_metro_stations = ARRAY['Чернышевская'] WHERE user_id = v_b05;
+  UPDATE public.barista_profiles SET profile_completeness = 29, preferred_metro_stations = ARRAY['Чернышевская'] WHERE user_id = v_b05;
   UPDATE public.barista_profiles SET preferred_metro_stations = ARRAY['Чернышевская'] WHERE user_id IN (v_b06, v_b07, v_b08, v_b09, v_b10);
   UPDATE public.barista_profiles SET is_actively_looking = false, preferred_metro_stations = ARRAY['Чернышевская'] WHERE user_id = v_b11;
   UPDATE public.users SET banned_at = v_now - INTERVAL '1 day' WHERE id = v_b09;

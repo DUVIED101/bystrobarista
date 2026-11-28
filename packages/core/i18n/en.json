@@ -1868,7 +1868,7 @@
         },
         "profileFill": {
           "title": "Fill in your profile",
-          "body": "Go through the steps and tap \"Done\". 20% is enough to apply, but a complete profile gets noticed more often."
+          "body": "Go through the steps and tap \"Done\". 30% is enough to apply, but a complete profile gets noticed more often."
         },
         "jobsTab": {
           "title": "Jobs",
@@ -1884,7 +1884,7 @@
         },
         "jobsApply": {
           "title": "Applying to a job",
-          "body": "This is the apply button: tap it, add a few words and send. You don't have to apply right now — tap \"Got it\". Applying needs a profile that is at least 20% complete."
+          "body": "This is the apply button: tap it, add a few words and send. You don't have to apply right now — tap \"Got it\". Applying needs a profile that is at least 30% complete."
         },
         "applicationsTab": {
           "title": "Applications",
