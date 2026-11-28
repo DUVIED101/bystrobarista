@@ -72,7 +72,7 @@ END $$;
 --   a {Чернышевская, Площадь Восстания}   b {Площадь Восстания, Адмиралтейская}
 --   c {__any__}   d {Невский проспект}   e {}   n {} seen via device token 10 d ago
 --   o {Чернышевская} seen 45 d ago (session)   f moscow {}   p moscow {Тверская}
---   excluded: g completeness 19, h seen 61 d ago, i not looking, j banned,
+--   excluded: g completeness 29, h seen 61 d ago, i not looking, j banned,
 --   k inactive, l admin (first admin, created 2020)
 -- Businesses: biz-1 spb (Чернышевская / Площадь Восстания / Адмиралтейская /
 --   no station / inactive no station), biz-2 moscow (Тверская), biz-3 spb not
@@ -104,7 +104,7 @@ BEGIN
   UPDATE public.barista_profiles SET preferred_metro_stations = '{Чернышевская}' WHERE user_id = pg_temp.tid('bar_o');
   UPDATE public.barista_profiles SET city = 'moscow' WHERE user_id IN (pg_temp.tid('bar_f'), pg_temp.tid('bar_p'));
   UPDATE public.barista_profiles SET preferred_metro_stations = '{Тверская}' WHERE user_id = pg_temp.tid('bar_p');
-  UPDATE public.barista_profiles SET profile_completeness = 19, preferred_metro_stations = '{Чернышевская}' WHERE user_id = pg_temp.tid('bar_g');
+  UPDATE public.barista_profiles SET profile_completeness = 29, preferred_metro_stations = '{Чернышевская}' WHERE user_id = pg_temp.tid('bar_g');
   UPDATE public.barista_profiles SET is_actively_looking = false WHERE user_id = pg_temp.tid('bar_i');
   UPDATE public.barista_profiles SET preferred_metro_stations = '{Чернышевская}' WHERE user_id = pg_temp.tid('bar_l');
   UPDATE public.users SET banned_at = v_now - INTERVAL '1 day' WHERE id = pg_temp.tid('bar_j');

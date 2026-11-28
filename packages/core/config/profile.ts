@@ -1,1 +1,1 @@
-export const MIN_PROFILE_COMPLETENESS = 20;
+export const MIN_PROFILE_COMPLETENESS = 30;

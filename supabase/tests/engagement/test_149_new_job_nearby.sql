@@ -124,7 +124,7 @@ END $$;
 -- every station list is {Чернышевская} unless noted; "seen" = user_activity):
 --   included for job_main: a seen 1 d, b {__any__}, g seen 59 d,
 --                          n accepted shift on another date
---   excluded: c {} no stations, d moscow, e completeness 19, f seen 61 d,
+--   excluded: c {} no stations, d moscow, e completeness 29, f seen 61 d,
 --             h not looking, i banned, j inactive, k admin, l applied (pending),
 --             q applied (withdrawn), m accepted shift on the same date,
 --             o on apply cooldown, p never seen
@@ -152,7 +152,7 @@ BEGIN
   UPDATE public.barista_profiles SET preferred_metro_stations = '{__any__}' WHERE user_id = pg_temp.tid('bar_b');
   UPDATE public.barista_profiles SET preferred_metro_stations = '{}' WHERE user_id = pg_temp.tid('bar_c');
   UPDATE public.barista_profiles SET city = 'moscow' WHERE user_id = pg_temp.tid('bar_d');
-  UPDATE public.barista_profiles SET profile_completeness = 19 WHERE user_id = pg_temp.tid('bar_e');
+  UPDATE public.barista_profiles SET profile_completeness = 29 WHERE user_id = pg_temp.tid('bar_e');
   UPDATE public.barista_profiles SET is_actively_looking = false WHERE user_id = pg_temp.tid('bar_h');
   UPDATE public.users SET banned_at = v_now - INTERVAL '1 day' WHERE id = pg_temp.tid('bar_i');
   UPDATE public.users SET is_active = false WHERE id = pg_temp.tid('bar_j');
